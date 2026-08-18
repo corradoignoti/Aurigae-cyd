@@ -6,6 +6,9 @@ All notable changes to Aurigae are documented here. Format loosely follows
 and the corresponding git tags where one exists.
 
 ## [Unreleased]
+### Added
+- LICENSE file (GPLv3), with README carve-out for icon assets not covered by it.
+
 ### Changed
 - Moon phase service URL moved to `MOON_SERVICE_URL` in `config.h`.
 

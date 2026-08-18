@@ -74,6 +74,18 @@ Declared as `lib_deps` in [platformio.ini](platformio.ini) — PlatformIO fetche
 
 To show moonphases Aurigae connects to a service hosted on one of my server: it's free and given as-is. You can host the service on your own using this code: [https://github.com/corradoignoti/aurigae_moonphases](https://github.com/corradoignoti/aurigae_moonphases). Change in config.h the value of MOON_SERVICE_URL
 
+### License
+
+Aurigae code is licensed under the [GNU General Public License v3.0](LICENSE).
+
+Exceptions:
+- Weather icons (`src/icon_*.c`/`src/image_*.c` derived from `assets/`, sourced from
+  [google-weather-icons](https://github.com/mrdarrengriffin/google-weather-icons/tree/main/v2)) are property
+  of Google and are **not** covered by the GPLv3 grant — same carve-out as upstream Aura. They're included
+  as-is; redistribution rights beyond this project are Google's to grant, not ours.
+- Moon phase and Santa Claus icons under `assets/` have no recorded license or credited source
+  (provenance unknown); treat them the same as the weather icons above until that's resolved.
+
 ### Thanks & Credits
 
 - Weather icons from https://github.com/mrdarrengriffin/google-weather-icons/tree/main/v2
