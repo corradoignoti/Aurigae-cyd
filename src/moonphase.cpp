@@ -7,13 +7,14 @@
 #include "globals.h"
 #include "localization.h"
 #include "icons.h"
+#include "config.h"
 
 void fetch_and_update_moonphase() {
   int phase_id = -1;
 
   if (WiFi.status() != WL_CONNECTED) return;
 
-  String url = String ("https://api.aurigae.fizban.net/api/moonphase?date=today");
+  String url = String (MOON_SERVICE_URL);
 
   HTTPClient http;
   http.begin(url);
