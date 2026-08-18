@@ -2,7 +2,7 @@
 
 Auriage is a simple weather widget that runs on ESP32-2432S028R ILI9341 devices with a 2.8" screen. These devices are sometimes called a "CYD" or Cheap Yellow Display.
 
-Aurigae is based on Aura project: [text](https://github.com/Surrey-Homeware/Aura)
+Aurigae is based on Aura project: [https://github.com/Surrey-Homeware/Aura](https://github.com/Surrey-Homeware/Aura)
 
 This is the source code for the project. 
 You can print a case for the deivce using the Aura's project 3MF file: https://makerworld.com/en/models/1382304-aura-smart-weather-forecast-display
@@ -71,6 +71,8 @@ Declared as `lib_deps` in [platformio.ini](platformio.ini) — PlatformIO fetche
   git tag for that patch — 9.2.2 is config-compatible with this project's `lv_conf.h`)
 
 (`HTTPClient` is bundled with the arduino-esp32 framework itself, no separate dependency needed.)
+
+To show moonphases Aurigae connects to a service hosted on one of my server: it's free and given as-is. You can host the service on your own using this code: [https://github.com/corradoignoti/aurigae_moonphases](https://github.com/corradoignoti/aurigae_moonphases). Change in config.h the value of MOON_SERVICE_URL
 
 ### Thanks & Credits
 
