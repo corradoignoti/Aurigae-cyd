@@ -9,8 +9,16 @@
 #include <ArduinoJson.h>
 #include <WebServer.h>
 #include <XPT2046_Touchscreen.h>
+#include <TFT_eSPI.h>
 #include "config.h"
 #include "weather.h"  // WeatherProvider
+
+// The TFT_eSPI instance created/init'd in setup(). LVGL drives its own
+// separate internal TFT_eSPI instance for drawing (see lv_tft_espi_create());
+// this one talks to the same physical SPI bus/display and is used for
+// operations LVGL's driver doesn't expose, e.g. reading pixels back for
+// webconfig's /screenshot endpoint.
+extern TFT_eSPI tft;
 
 extern SPIClass touchscreenSPI;
 extern XPT2046_Touchscreen touchscreen;

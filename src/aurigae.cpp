@@ -45,7 +45,6 @@ void setup() {
   Serial.begin(115200);
   delay(100);
 
-  TFT_eSPI tft = TFT_eSPI();
   tft.init();
   pinMode(LCD_BACKLIGHT_PIN, OUTPUT);
 

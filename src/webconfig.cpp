@@ -151,6 +151,9 @@ static void handle_webconfig_root() {
     "<input type='text' id='locname' name='location' value='" + webconfig_html_escape(location) + "' maxlength='63' required>"
     "<button type='submit'>Save Location</button>"
     "</form>"
+    "<hr>"
+    "<h2>Debug</h2>"
+    "<a href='/screenshot' target='_blank'>Download screenshot (BMP)</a>"
     "<script>"
     "function searchLoc(){"
     "var q=document.getElementById('locq').value;"
@@ -345,6 +348,49 @@ static void handle_webconfig_savelocation() {
   webconfig_send_reboot_page("Location saved. Rebooting device...");
 }
 
+// Streams the current display contents as an uncompressed BMP by reading
+// pixels back from the ILI9341's GRAM over SPI (readRectRGB) one row at a
+// time — SCREEN_WIDTH*SCREEN_HEIGHT is too big to buffer whole in RAM.
+// Uses the standalone `tft` instance (see globals.h); safe to call from here
+// since loop() is single-threaded, so this never runs concurrently with
+// LVGL's own flush_cb on its separate TFT_eSPI instance.
+static void handle_webconfig_screenshot() {
+  const uint32_t rowBytes = SCREEN_WIDTH * 3;   // 24-bit BGR, already 4-byte aligned
+  const uint32_t dataSize = rowBytes * SCREEN_HEIGHT;
+  const uint32_t fileSize = 54 + dataSize;
+  const int32_t negHeight = -SCREEN_HEIGHT;     // negative = top-down row order
+
+  uint8_t header[54] = {0};
+  header[0] = 'B'; header[1] = 'M';
+  header[2] = fileSize & 0xFF; header[3] = (fileSize >> 8) & 0xFF;
+  header[4] = (fileSize >> 16) & 0xFF; header[5] = (fileSize >> 24) & 0xFF;
+  header[10] = 54;                              // pixel data offset
+  header[14] = 40;                              // DIB header size (BITMAPINFOHEADER)
+  header[18] = SCREEN_WIDTH & 0xFF; header[19] = (SCREEN_WIDTH >> 8) & 0xFF;
+  header[22] = negHeight & 0xFF; header[23] = (negHeight >> 8) & 0xFF;
+  header[24] = (negHeight >> 16) & 0xFF; header[25] = (negHeight >> 24) & 0xFF;
+  header[26] = 1;                               // planes
+  header[28] = 24;                              // bits per pixel
+  header[34] = dataSize & 0xFF; header[35] = (dataSize >> 8) & 0xFF;
+  header[36] = (dataSize >> 16) & 0xFF; header[37] = (dataSize >> 24) & 0xFF;
+
+  webConfigServer.setContentLength(fileSize);
+  webConfigServer.send(200, "image/bmp", "");
+  webConfigServer.sendContent((const char *)header, sizeof(header));
+
+  uint8_t rgbRow[SCREEN_WIDTH * 3];  // readRectRGB fills R,G,B per pixel
+  uint8_t bmpRow[SCREEN_WIDTH * 3];  // BMP wants B,G,R per pixel
+  for (int row = 0; row < SCREEN_HEIGHT; row++) {
+    tft.readRectRGB(0, row, SCREEN_WIDTH, 1, rgbRow);
+    for (int col = 0; col < SCREEN_WIDTH; col++) {
+      bmpRow[col * 3 + 0] = rgbRow[col * 3 + 2];  // B
+      bmpRow[col * 3 + 1] = rgbRow[col * 3 + 1];  // G
+      bmpRow[col * 3 + 2] = rgbRow[col * 3 + 0];  // R
+    }
+    webConfigServer.sendContent((const char *)bmpRow, sizeof(bmpRow));
+  }
+}
+
 void start_webconfig_server() {
   webConfigServer.on("/", HTTP_GET, handle_webconfig_root);
   webConfigServer.on("/save", HTTP_POST, handle_webconfig_save);
@@ -355,5 +401,6 @@ void start_webconfig_server() {
   webConfigServer.on("/saveweatherprovider", HTTP_POST, handle_webconfig_saveweatherprovider);
   webConfigServer.on("/geocode", HTTP_GET, handle_webconfig_geocode);
   webConfigServer.on("/savelocation", HTTP_POST, handle_webconfig_savelocation);
+  webConfigServer.on("/screenshot", HTTP_GET, handle_webconfig_screenshot);
   webConfigServer.begin();
 }

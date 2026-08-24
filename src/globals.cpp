@@ -1,5 +1,7 @@
 #include "globals.h"
 
+TFT_eSPI tft = TFT_eSPI();
+
 SPIClass touchscreenSPI = SPIClass(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
