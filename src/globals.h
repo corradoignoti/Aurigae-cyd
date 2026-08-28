@@ -37,6 +37,7 @@ extern JsonDocument geoDoc;
 extern JsonArray geoResults;
 extern char ntp_server[64];
 extern int ntp_utc_offset_seconds;
+extern bool page_slideshow_enabled;  // auto-cycle main-view pages every PAGE_SLIDESHOW_INTERVAL
 
 // Web config server (NTP server, location)
 extern WebServer webConfigServer;
