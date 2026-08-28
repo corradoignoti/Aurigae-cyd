@@ -24,6 +24,11 @@ Once on Wi-Fi, device run small built-in web server on port 80. Device IP show o
 
 Saving reboot device to apply.
 
+Page also has OTA firmware update: `/update` endpoint accept upload of built `.bin`, device flash
+and reboot into it (unauthenticated — anyone on LAN can flash it). Page checks
+aurigae.fizban.net for newer published firmware and shows update banner with direct
+firmware.bin link when found.
+
 ### License
 
 You can use the aurigae.cpp code here under the terms of the GPL 3.0 license.
@@ -38,9 +43,9 @@ arduino-esp32 core releases than the stock PlatformIO espressif32 platform).
 
 1. Install [PlatformIO](https://platformio.org/install) (CLI or the VS Code extension).
 1. Open this repo as a PlatformIO project — [platformio.ini](platformio.ini) declares the platform, board
-   (`esp32dev`, i.e. a generic ESP32 Dev Module), partition scheme (`huge_app.csv`, equivalent to the Arduino
-   IDE's "Huge App (3MB No OTA/1MB SPIFFS)"), and all library dependencies, so no manual library install step
-   is needed.
+   (`esp32dev`, i.e. a generic ESP32 Dev Module), partition scheme (`min_spiffs.csv`: dual ~1.9MB OTA app
+   slots + small unused SPIFFS partition, needed for the webconfig `/update` OTA endpoint), and all library
+   dependencies, so no manual library install step is needed.
 1. Build & upload:
    ```
    pio run -t upload
@@ -51,13 +56,17 @@ arduino-esp32 core releases than the stock PlatformIO espressif32 platform).
    ```
 
 Source layout:
-- `src/` — `aurigae.cpp` plus the generated LVGL image/font assets (`icon_*.c`, `image_*.c`,
-  `lv_font_montserrat_latin_*.c`).
+- `src/` — sketch source (entry point `aurigae.cpp`) plus the generated LVGL image/font assets
+  (`icon_*.c`, `image_*.c`, `lv_font_montserrat_latin_*.c`).
 - `include/` — `lv_conf.h` (LVGL config) and `User_Setup.h` (TFT_eSPI pin/driver config); both are wired in
   via `build_flags` in [platformio.ini](platformio.ini).
 - `tools/extract_unicode_chars.py` — helper to find non-ASCII characters a translation needs, for
   regenerating the LVGL fonts.
+- `tools/make_webflasher_zip.sh` — build + package firmware (manifest.json + binary parts) for the
+  [esp-web-tools](https://esphome.github.io/esp-web-tools/) browser flasher.
 - `assets/` — source icon artwork the generated `.c` files in `src/` are derived from.
+- `docs/user-guide.md` — end-user guide (Wi-Fi setup, settings screen, web config page).
+- `changelog.md` — release notes per version.
 
 ### Libraries required to compile:
 
