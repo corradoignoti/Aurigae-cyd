@@ -5,7 +5,7 @@ All notable changes to Aurigae are documented here. Format loosely follows
 `APP_VERSION` string shown in the on-device Settings screen / webconfig page
 and the corresponding git tags where one exists.
 
-## [Unreleased]
+## [2.1.1] - 2026-08-28
 ### Added
 - OTA firmware update: `/update` endpoint on the webconfig page, upload a built `.bin` and the
   device flashes + reboots itself. Required switching `board_build.partitions` from
@@ -23,6 +23,11 @@ and the corresponding git tags where one exists.
 - Open-Meteo weather fetch now uses the ARPAE ICON-2I model for Italian locations.
 - Webconfig OTA section links to aurigae.fizban.net/firmware.html as a prebuilt-firmware.bin
   download source, alongside the existing manifest-driven update banner.
+
+### Fixed
+- Compile warnings cleared: `DynamicJsonDocument`/`StaticJsonDocument` swapped for `JsonDocument`
+  (ArduinoJson 7 deprecation), and LVGL style-selector arguments (`LV_PART_* | LV_STATE_*`) now
+  cast to `lv_style_selector_t` to silence enum-enum bitwise-op warnings. No behavior change.
 
 ## [2.1.0] - 2026-08-25
 ### Added
