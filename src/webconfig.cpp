@@ -29,6 +29,61 @@ static String webconfig_html_escape(const String &s) {
   return out;
 }
 
+// Material Design-inspired shared stylesheet for every webconfig page: tonal
+// surfaces, pill buttons, outlined fields, and a switch-styled checkbox.
+// Reused across the root/error/info/reboot pages so the style lives in one
+// place instead of five near-duplicate <style> blocks.
+static const char WEBCONFIG_HEAD_CSS[] =
+  "<style>"
+  ":root{--md-primary:#6750A4;--md-on-primary:#fff;--md-surface:#fffbfe;--md-on-surface:#1c1b1f;--md-outline:#79747e;--md-surface-variant:#e7e0ec}"
+  "@media (prefers-color-scheme:dark){:root{--md-primary:#d0bcff;--md-on-primary:#381e72;--md-surface:#1c1b1f;--md-on-surface:#e6e1e5;--md-outline:#938f99;--md-surface-variant:#49454f}body{background:#000}}"
+  "*{box-sizing:border-box}"
+  "body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#eceff5;margin:0;padding:2em 1em;color:var(--md-on-surface)}"
+  ".card{background:var(--md-surface);max-width:480px;margin:0 auto;padding:1.6em;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px 1px rgba(0,0,0,.15)}"
+  "h1{font-size:1.5em;margin:0 0 .1em}"
+  ".version{color:var(--md-outline);font-size:.85em;margin:0 0 1.2em}"
+  "h2.section{font-size:.8em;text-transform:uppercase;letter-spacing:.06em;color:var(--md-primary);margin:1.6em 0 .6em;font-weight:700}"
+  "label{display:block;font-size:.85em;color:var(--md-outline);margin:1em 0 .3em}"
+  "input[type=text],select{width:100%;padding:.7em .8em;border:1px solid var(--md-outline);border-radius:8px;font-size:1em;background:transparent;color:var(--md-on-surface);font-family:inherit}"
+  "input[type=text]:focus,select:focus{outline:none;border:2px solid var(--md-primary);padding:calc(.7em - 1px) calc(.8em - 1px)}"
+  "button{font-family:inherit;cursor:pointer}"
+  ".btn{margin-top:1.3em;padding:.7em 1.6em;background:var(--md-primary);color:var(--md-on-primary);border:none;border-radius:20px;font-size:.95em;font-weight:600}"
+  ".btn:hover{filter:brightness(1.08)}"
+  ".btn-outline{background:transparent;color:var(--md-primary);border:1px solid var(--md-outline)}"
+  ".switch-row{display:flex;align-items:center;justify-content:space-between;gap:1em;margin-top:1.1em;cursor:pointer;font-size:.95em}"
+  "input[type=checkbox]{appearance:none;-webkit-appearance:none;width:44px;height:24px;min-width:44px;border-radius:12px;background:var(--md-surface-variant);position:relative;cursor:pointer;transition:background .2s;margin:0}"
+  "input[type=checkbox]:checked{background:var(--md-primary)}"
+  "input[type=checkbox]::before{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}"
+  "input[type=checkbox]:checked::before{transform:translateX(20px)}"
+  "hr{border:none;height:1px;background:var(--md-surface-variant);margin:1.6em 0}"
+  ".theme-picker{display:flex;gap:1.4em;flex-wrap:wrap;margin-top:.8em}"
+  ".theme-option{display:flex;flex-direction:column;align-items:center;gap:.4em;cursor:pointer}"
+  ".theme-option input{position:absolute;opacity:0;pointer-events:none}"
+  ".theme-option .swatch{display:block;width:44px;height:44px;border-radius:50%;border:3px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:border-color .15s,transform .15s}"
+  ".theme-option input:checked+.swatch{border-color:var(--md-primary);transform:scale(1.08)}"
+  ".theme-option .name{font-size:.8em;color:var(--md-on-surface)}"
+  ".map-frame{width:100%;height:220px;border:1px solid var(--md-outline);border-radius:8px;margin-top:1em;display:block}"
+  "#locresults button{display:block;width:100%;text-align:left;margin:.4em 0;padding:.7em .9em;background:var(--md-surface-variant);color:var(--md-on-surface);border:none;border-radius:8px;font-size:.95em}"
+  "#locresults button:hover{filter:brightness(.95)}"
+  "a.link{display:inline-block;margin-top:.3em;color:var(--md-primary);text-decoration:none;font-weight:600}"
+  "a.link:hover{text-decoration:underline}"
+  ".hint{color:var(--md-outline);font-size:.85em;margin-top:.3em}"
+  "</style>";
+
+// Wraps body markup in the shared <head>/card shell every webconfig page uses.
+static String webconfig_page_shell(const String &bodyInner) {
+  return "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Aurigae Config</title>"
+    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+    + String(WEBCONFIG_HEAD_CSS) +
+    "</head><body><div class='card'>" + bodyInner + "</div></body></html>";
+}
+
+// Shared body for the small "message + Back link" pages (error and info).
+static String webconfig_message_body(const String &message) {
+  return "<h1>Aurigae</h1><p>" + webconfig_html_escape(message) + "</p>"
+    "<a class='link' href='/'>Back</a>";
+}
+
 // A numeric coordinate string: optional leading '-', digits, at most one '.'.
 static bool webconfig_is_valid_coord(const String &s) {
   if (s.length() == 0) return false;
@@ -43,29 +98,25 @@ static bool webconfig_is_valid_coord(const String &s) {
 }
 
 static void webconfig_send_error_page(const String &message) {
-  String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Aurigae Config</title>"
-    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-    "<style>body{font-family:sans-serif;margin:2em;max-width:400px}"
-    "a{display:inline-block;margin-top:1em}</style></head><body>"
-    "<h2>Aurigae</h2><p>" + webconfig_html_escape(message) + "</p>"
-    "<a href='/'>Back</a></body></html>";
-  webConfigServer.send(400, "text/html; charset=utf-8", html);
+  webConfigServer.send(400, "text/html; charset=utf-8", webconfig_page_shell(webconfig_message_body(message)));
+}
+
+// 200 OK version of the message page, used by the small "X saved." confirmations.
+static void webconfig_send_info_page(const String &message) {
+  webConfigServer.send(200, "text/html; charset=utf-8", webconfig_page_shell(webconfig_message_body(message)));
 }
 
 static void webconfig_send_reboot_page(const String &message) {
-  String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Aurigae Config</title>"
-    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-    "<style>body{font-family:sans-serif;margin:2em;max-width:400px}</style></head><body>"
-    "<h2>Aurigae</h2><p>" + webconfig_html_escape(message) + "</p>"
-    "<p>The browser will automatically try to reconnect in <span id='cnt'>30</span>s.</p>"
+  String body = "<h1>Aurigae</h1><p>" + webconfig_html_escape(message) + "</p>"
+    "<p class='hint'>The browser will automatically try to reconnect in <span id='cnt'>30</span>s.</p>"
     "<script>"
     "var s=30;"
     "var t=setInterval(function(){"
     "s--;document.getElementById('cnt').textContent=s;"
     "if(s<=0){clearInterval(t);window.location.href='/';}"
     "},1000);"
-    "</script></body></html>";
-  webConfigServer.send(200, "text/html; charset=utf-8", html);
+    "</script>";
+  webConfigServer.send(200, "text/html; charset=utf-8", webconfig_page_shell(body));
 
   webConfigServer.client().flush();
   delay(500);
@@ -73,31 +124,24 @@ static void webconfig_send_reboot_page(const String &message) {
 }
 
 static void handle_webconfig_root() {
-  String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Aurigae Config</title>"
-    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-    "<style>body{font-family:sans-serif;margin:2em;max-width:400px}"
-    "label{display:block;margin-top:1em;font-weight:bold}"
-    "input,select{padding:.5em;width:100%;box-sizing:border-box;margin-top:.3em}"
-    "button{margin-top:1.5em;padding:.6em 1.5em}"
-    "h2{margin-bottom:0}"
-    "hr{margin:2em 0}"
-    "#locresults button{display:block;width:100%;text-align:left;margin:.3em 0;padding:.4em}"
-    "</style></head><body>"
-    "<h2>Aurigae</h2><p>" APP_VERSION "</p>"
+  String body = "<h1>Aurigae</h1><p class='version'>" APP_VERSION "</p>"
+    "<h2 class='section'>General</h2>"
     "<form method='POST' action='/save'>"
     "<label for='ntp'>NTP Server</label>"
     "<input type='text' id='ntp' name='ntp' value='" + webconfig_html_escape(ntp_server) + "' maxlength='63' required>"
-    "<button type='submit'>Save</button>"
+    "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<form method='POST' action='/saveclockformat'>"
-    "<label for='clk24'><input type='checkbox' id='clk24' name='clk24' value='1' style='width:auto;margin-right:.5em'"
-      + String(use_24_hour ? " checked" : "") + ">Use 24-hour clock</label>"
-    "<button type='submit'>Save</button>"
+    "<label for='clk24' class='switch-row'><span>Use 24-hour clock</span>"
+    "<input type='checkbox' id='clk24' name='clk24' value='1'"
+      + String(use_24_hour ? " checked" : "") + "></label>"
+    "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<form method='POST' action='/savetempunit'>"
-    "<label for='fahrenheit'><input type='checkbox' id='fahrenheit' name='fahrenheit' value='1' style='width:auto;margin-right:.5em'"
-      + String(use_fahrenheit ? " checked" : "") + ">Show temperature in °F (unchecked = °C)</label>"
-    "<button type='submit'>Save</button>"
+    "<label for='fahrenheit' class='switch-row'><span>Show temperature in &deg;F (unchecked = &deg;C)</span>"
+    "<input type='checkbox' id='fahrenheit' name='fahrenheit' value='1'"
+      + String(use_fahrenheit ? " checked" : "") + "></label>"
+    "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<form method='POST' action='/savelanguage'>"
     "<label for='lang'>Language</label>"
@@ -108,22 +152,34 @@ static void handle_webconfig_root() {
     "<option value='3'" + String(current_language == LANG_FR ? " selected" : "") + ">Français</option>"
     "<option value='4'" + String(current_language == LANG_IT ? " selected" : "") + ">Italiano</option>"
     "</select>"
-    "<button type='submit'>Save</button>"
+    "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<hr>"
-    "<h2>Appearance</h2>"
+    "<h2 class='section'>Appearance</h2>"
     "<form method='POST' action='/savetheme'>"
-    "<label for='theme'>Color theme</label>"
-    "<select id='theme' name='theme'>"
-    "<option value='0'" + String(current_theme == THEME_BLUE ? " selected" : "") + ">Blue (default)</option>"
-    "<option value='1'" + String(current_theme == THEME_RED ? " selected" : "") + ">Red</option>"
-    "<option value='2'" + String(current_theme == THEME_GREEN ? " selected" : "") + ">Green</option>"
-    "<option value='3'" + String(current_theme == THEME_DARK ? " selected" : "") + ">Dark</option>"
-    "</select>"
-    "<button type='submit'>Save</button>"
+    "<label>Color theme</label>"
+    "<div class='theme-picker'>"
+    "<label class='theme-option'>"
+    "<input type='radio' name='theme' value='0'" + String(current_theme == THEME_BLUE ? " checked" : "") + ">"
+    "<span class='swatch' style='background:#4c8cb9'></span><span class='name'>Blue</span>"
+    "</label>"
+    "<label class='theme-option'>"
+    "<input type='radio' name='theme' value='1'" + String(current_theme == THEME_RED ? " checked" : "") + ">"
+    "<span class='swatch' style='background:#b9524c'></span><span class='name'>Red</span>"
+    "</label>"
+    "<label class='theme-option'>"
+    "<input type='radio' name='theme' value='2'" + String(current_theme == THEME_GREEN ? " checked" : "") + ">"
+    "<span class='swatch' style='background:#4cb95e'></span><span class='name'>Green</span>"
+    "</label>"
+    "<label class='theme-option'>"
+    "<input type='radio' name='theme' value='3'" + String(current_theme == THEME_DARK ? " checked" : "") + ">"
+    "<span class='swatch' style='background:#2b2f38'></span><span class='name'>Dark</span>"
+    "</label>"
+    "</div>"
+    "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<hr>"
-    "<h2>Weather Provider</h2>"
+    "<h2 class='section'>Weather Provider</h2>"
     "<form method='POST' action='/saveweatherprovider'>"
     "<label for='wprovider'>Provider</label>"
     "<select id='wprovider' name='provider' onchange=\"document.getElementById('owmkeyrow').style.display=(this.value=='1')?'block':'none';\">"
@@ -134,13 +190,13 @@ static void handle_webconfig_root() {
     "<label for='owmapikey'>OpenWeather API Key</label>"
     "<input type='text' id='owmapikey' name='owmapikey' value='" + webconfig_html_escape(openweather_apikey) + "' maxlength='39'>"
     "</div>"
-    "<button type='submit'>Save</button>"
+    "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<hr>"
-    "<h2>Location</h2>"
+    "<h2 class='section'>Location</h2>"
     "<label for='locq'>Search for a city</label>"
     "<input type='text' id='locq' placeholder='e.g. Paris, France'>"
-    "<button type='button' onclick='searchLoc()'>Search</button>"
+    "<button type='button' class='btn btn-outline' onclick='searchLoc()'>Search</button>"
     "<div id='locresults'></div>"
     "<form method='POST' action='/savelocation'>"
     "<label for='loclat'>Latitude</label>"
@@ -149,12 +205,21 @@ static void handle_webconfig_root() {
     "<input type='text' id='loclon' name='longitude' value='" + webconfig_html_escape(longitude) + "' required>"
     "<label for='locname'>Location name</label>"
     "<input type='text' id='locname' name='location' value='" + webconfig_html_escape(location) + "' maxlength='63' required>"
-    "<button type='submit'>Save Location</button>"
+    "<iframe id='locmap' class='map-frame' loading='lazy'></iframe>"
+    "<button type='submit' class='btn'>Save Location</button>"
     "</form>"
     "<hr>"
-    "<h2>Debug</h2>"
-    "<a href='/screenshot' target='_blank'>Download screenshot (BMP)</a>"
+    "<h2 class='section'>Debug</h2>"
+    "<a class='link' href='/screenshot' target='_blank'>Download screenshot (BMP)</a>"
     "<script>"
+    "function updateMap(lat,lon){"
+    "var la=parseFloat(lat),lo=parseFloat(lon);"
+    "if(isNaN(la)||isNaN(lo))return;"
+    "var d=0.02;"
+    "var bbox=(lo-d)+','+(la-d)+','+(lo+d)+','+(la+d);"
+    "document.getElementById('locmap').src='https://www.openstreetmap.org/export/embed.html?bbox='+bbox+'&marker='+la+','+lo;"
+    "}"
+    "updateMap(document.getElementById('loclat').value,document.getElementById('loclon').value);"
     "function searchLoc(){"
     "var q=document.getElementById('locq').value;"
     "if(!q)return;"
@@ -172,14 +237,14 @@ static void handle_webconfig_root() {
     "document.getElementById('loclat').value=item.latitude;"
     "document.getElementById('loclon').value=item.longitude;"
     "document.getElementById('locname').value=item.name+(item.admin1?', '+item.admin1:'');"
+    "updateMap(item.latitude,item.longitude);"
     "};"
     "box.appendChild(b);"
     "});"
     "}).catch(function(){box.textContent='Search failed.';});"
     "}"
-    "</script>"
-    "</body></html>";
-  webConfigServer.send(200, "text/html; charset=utf-8", html);
+    "</script>";
+  webConfigServer.send(200, "text/html; charset=utf-8", webconfig_page_shell(body));
 }
 
 static void handle_webconfig_save() {
@@ -202,26 +267,14 @@ static void handle_webconfig_saveclockformat() {
   use_24_hour = webConfigServer.hasArg("clk24");
   prefs.putBool("use24Hour", use_24_hour);
 
-  String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Aurigae Config</title>"
-    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-    "<style>body{font-family:sans-serif;margin:2em;max-width:400px}"
-    "a{display:inline-block;margin-top:1em}</style></head><body>"
-    "<h2>Aurigae</h2><p>Clock format saved.</p>"
-    "<a href='/'>Back</a></body></html>";
-  webConfigServer.send(200, "text/html; charset=utf-8", html);
+  webconfig_send_info_page("Clock format saved.");
 }
 
 static void handle_webconfig_savetempunit() {
   use_fahrenheit = webConfigServer.hasArg("fahrenheit");
   prefs.putBool("useFahrenheit", use_fahrenheit);
 
-  String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Aurigae Config</title>"
-    "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-    "<style>body{font-family:sans-serif;margin:2em;max-width:400px}"
-    "a{display:inline-block;margin-top:1em}</style></head><body>"
-    "<h2>Aurigae</h2><p>Temperature unit saved.</p>"
-    "<a href='/'>Back</a></body></html>";
-  webConfigServer.send(200, "text/html; charset=utf-8", html);
+  webconfig_send_info_page("Temperature unit saved.");
 }
 
 static void handle_webconfig_savelanguage() {
