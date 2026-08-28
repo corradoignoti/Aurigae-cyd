@@ -14,6 +14,15 @@ and the corresponding git tags where one exists.
 - `/checkupdate`: webconfig page polls the public web-flasher's manifest
   (aurigae.fizban.net/firmware/manifest.json) and shows an update banner with a direct
   firmware.bin download link when a newer version is published there.
+- Page indicator dots on the cycled forecast boxes (daily/hourly/moon-phase/AQI), showing which
+  box is currently displayed.
+
+### Changed
+- Firmware size shrunk ~24% via `lv_conf.h` trims + indexed icon assets, clawing back headroom
+  in the OTA dual-slot partition scheme (see above).
+- Open-Meteo weather fetch now uses the ARPAE ICON-2I model for Italian locations.
+- Webconfig OTA section links to aurigae.fizban.net/firmware.html as a prebuilt-firmware.bin
+  download source, alongside the existing manifest-driven update banner.
 
 ## [2.1.0] - 2026-08-25
 ### Added
