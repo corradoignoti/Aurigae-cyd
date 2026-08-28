@@ -55,9 +55,9 @@ void populate_results_dropdown() {
   if (geoResults.size() > 0) {
     lv_dropdown_set_options_static(results_dd, dd_opts);
     lv_obj_add_flag(results_dd, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_set_style_bg_color(btn_close_loc, lv_palette_main(LV_PALETTE_GREEN), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(btn_close_loc, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(btn_close_loc, lv_palette_darken(LV_PALETTE_GREEN, 1), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_color(btn_close_loc, lv_palette_main(LV_PALETTE_GREEN), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+    lv_obj_set_style_bg_opa(btn_close_loc, LV_OPA_COVER, ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+    lv_obj_set_style_bg_color(btn_close_loc, lv_palette_darken(LV_PALETTE_GREEN, 1), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_PRESSED));
     lv_obj_add_flag(btn_close_loc, LV_OBJ_FLAG_CLICKABLE);
   }
 }
@@ -129,7 +129,7 @@ void create_location_dialog() {
 
   lv_obj_t *lbl = lv_label_create(cont);
   lv_label_set_text(lbl, strings->city);
-  lv_obj_set_style_text_font(lbl, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl, get_font_14(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 5, 10);
 
   loc_ta = lv_textarea_create(cont);
@@ -143,17 +143,17 @@ void create_location_dialog() {
 
   lv_obj_t *lbl2 = lv_label_create(cont);
   lv_label_set_text(lbl2, strings->search_results);
-  lv_obj_set_style_text_font(lbl2, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl2, get_font_14(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl2, LV_ALIGN_TOP_LEFT, 5, 50);
 
   results_dd = lv_dropdown_create(cont);
   lv_obj_set_width(results_dd, 200);
   lv_obj_align(results_dd, LV_ALIGN_TOP_LEFT, 5, 70);
-  lv_obj_set_style_text_font(results_dd, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
-  lv_obj_set_style_text_font(results_dd, get_font_14(), LV_PART_SELECTED | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(results_dd, get_font_14(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_text_font(results_dd, get_font_14(), ((lv_style_selector_t)LV_PART_SELECTED | LV_STATE_DEFAULT));
 
   lv_obj_t *list = lv_dropdown_get_list(results_dd);
-  lv_obj_set_style_text_font(list, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(list, get_font_14(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
 
   lv_dropdown_set_options(results_dd, "");
   lv_obj_clear_flag(results_dd, LV_OBJ_FLAG_CLICKABLE);
@@ -163,14 +163,14 @@ void create_location_dialog() {
   lv_obj_align(btn_close_loc, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
 
   lv_obj_add_event_cb(btn_close_loc, location_save_event_cb, LV_EVENT_CLICKED, &geoResults);
-  lv_obj_set_style_bg_color(btn_close_loc, lv_palette_main(LV_PALETTE_GREY), LV_PART_MAIN | LV_STATE_DEFAULT);
-  lv_obj_set_style_bg_opa(btn_close_loc, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
-  lv_obj_set_style_bg_color(btn_close_loc, lv_palette_darken(LV_PALETTE_GREY, 1), LV_PART_MAIN | LV_STATE_PRESSED);
+  lv_obj_set_style_bg_color(btn_close_loc, lv_palette_main(LV_PALETTE_GREY), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_bg_opa(btn_close_loc, LV_OPA_COVER, ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_bg_color(btn_close_loc, lv_palette_darken(LV_PALETTE_GREY, 1), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_PRESSED));
   lv_obj_clear_flag(btn_close_loc, LV_OBJ_FLAG_CLICKABLE);
 
   lv_obj_t *lbl_close = lv_label_create(btn_close_loc);
   lv_label_set_text(lbl_close, strings->save);
-  lv_obj_set_style_text_font(lbl_close, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_close, get_font_14(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_center(lbl_close);
 
   lv_obj_t *btn_cancel_loc = lv_btn_create(cont);
@@ -180,6 +180,6 @@ void create_location_dialog() {
 
   lv_obj_t *lbl_cancel = lv_label_create(btn_cancel_loc);
   lv_label_set_text(lbl_cancel, strings->cancel);
-  lv_obj_set_style_text_font(lbl_cancel, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_cancel, get_font_14(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_center(lbl_cancel);
 }

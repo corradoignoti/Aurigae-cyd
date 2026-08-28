@@ -391,13 +391,13 @@ static void handle_webconfig_geocode() {
   HTTPClient http;
   http.begin(url);
   if (http.GET() == HTTP_CODE_OK) {
-    DynamicJsonDocument doc(8 * 1024);
+    JsonDocument doc;
     if (!deserializeJson(doc, http.getString())) {
       JsonArray results = doc["results"].as<JsonArray>();
-      DynamicJsonDocument outDoc(8 * 1024);
+      JsonDocument outDoc;
       JsonArray arr = outDoc.to<JsonArray>();
       for (JsonObject item : results) {
-        JsonObject o = arr.createNestedObject();
+        JsonObject o = arr.add<JsonObject>();
         o["name"] = item["name"];
         o["admin1"] = item["admin1"] | "";
         o["country_code"] = item["country_code"] | "";
@@ -563,7 +563,7 @@ static void handle_webconfig_checkupdate() {
   http.begin(FIRMWARE_MANIFEST_URL);
   int code = http.GET();
   if (code == HTTP_CODE_OK) {
-    DynamicJsonDocument doc(4 * 1024);
+    JsonDocument doc;
     if (!deserializeJson(doc, http.getString())) {
       latest = doc["version"] | "";
       if (latest.length() > 0) {
@@ -591,7 +591,7 @@ static void handle_webconfig_checkupdate() {
   }
   http.end();
 
-  DynamicJsonDocument outDoc(512);
+  JsonDocument outDoc;
   outDoc["current"] = current;
   outDoc["error"] = !ok;
   if (ok) {

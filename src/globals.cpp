@@ -14,7 +14,7 @@ char latitude[16] = LATITUDE_DEFAULT;
 char longitude[16] = LONGITUDE_DEFAULT;
 String location = String(LOCATION_DEFAULT);
 char country_code[4] = COUNTRY_CODE_DEFAULT;
-DynamicJsonDocument geoDoc(8 * 1024);
+JsonDocument geoDoc;
 JsonArray geoResults;
 char ntp_server[64] = NTP_SERVER_DEFAULT;
 int ntp_utc_offset_seconds = 0;

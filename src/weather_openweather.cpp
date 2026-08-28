@@ -48,7 +48,7 @@ void fetch_weather_openweather() {
 
   if (cur_code == HTTP_CODE_OK) {
     String payload = http_cur.getString();
-    DynamicJsonDocument doc(4 * 1024);
+    JsonDocument doc;
 
     if (deserializeJson(doc, payload) == DeserializationError::Ok) {
       current_ok = true;
@@ -114,8 +114,8 @@ void fetch_weather_openweather() {
     // sidesteps HTTPClient::getString() coming back empty on large bodies.
     // Also filter down to only the fields we use: the full response (40
     // entries x ~20 fields incl. coord/wind/clouds/visibility) blows well
-    // past what a modest DynamicJsonDocument can hold.
-    StaticJsonDocument<256> filter;
+    // past what a modest JsonDocument can hold.
+    JsonDocument filter;
     JsonObject filter_item = filter["list"][0].to<JsonObject>();
     filter_item["dt_txt"] = true;
     filter_item["main"]["temp"] = true;
@@ -125,7 +125,7 @@ void fetch_weather_openweather() {
     filter_item["pop"] = true;
     filter_item["sys"]["pod"] = true;
 
-    DynamicJsonDocument doc(16 * 1024);
+    JsonDocument doc;
     DeserializationError err = deserializeJson(doc, http_fc.getStream(), DeserializationOption::Filter(filter));
 
     if (err == DeserializationError::Ok) {
@@ -250,7 +250,7 @@ void fetch_openweather_uv_and_air_quality() {
   int uv_code = http_uv.GET();
 
   if (uv_code == HTTP_CODE_OK) {
-    StaticJsonDocument<192> doc;
+    JsonDocument doc;
     if (deserializeJson(doc, http_uv.getStream()) == DeserializationError::Ok) {
       float uvi = doc["value"].as<float>();
       lv_label_set_text_fmt(lbl_uv_value, "%.1f", uvi);
@@ -275,7 +275,7 @@ void fetch_openweather_uv_and_air_quality() {
   int aqi_code = http_aqi.GET();
 
   if (aqi_code == HTTP_CODE_OK) {
-    StaticJsonDocument<256> doc;
+    JsonDocument doc;
     if (deserializeJson(doc, http_aqi.getStream()) == DeserializationError::Ok) {
       int aqi = doc["list"][0]["main"]["aqi"].as<int>();
       lv_label_set_text_fmt(lbl_aqi_value, "%d", aqi);

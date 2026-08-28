@@ -100,9 +100,9 @@ static void reset_wifi_event_handler(lv_event_t *e) {
   lv_obj_t *btn_yes = lv_msgbox_add_footer_button(mbox, strings->reset);
   lv_obj_set_style_text_font(btn_yes, get_font_12(), 0);
 
-  lv_obj_set_style_bg_color(btn_yes, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN | LV_STATE_DEFAULT);
-  lv_obj_set_style_bg_color(btn_yes, lv_palette_darken(LV_PALETTE_RED, 1), LV_PART_MAIN | LV_STATE_PRESSED);
-  lv_obj_set_style_text_color(btn_yes, lv_color_white(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_bg_color(btn_yes, lv_palette_main(LV_PALETTE_RED), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_bg_color(btn_yes, lv_palette_darken(LV_PALETTE_RED, 1), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_PRESSED));
+  lv_obj_set_style_text_color(btn_yes, lv_color_white(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
 
   lv_obj_set_width(mbox, 230);
   lv_obj_center(mbox);
@@ -133,7 +133,7 @@ void create_settings_window() {
   // Brightness
   lv_obj_t *lbl_b = lv_label_create(cont);
   lv_label_set_text(lbl_b, strings->brightness);
-  lv_obj_set_style_text_font(lbl_b, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_b, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_b, LV_ALIGN_TOP_LEFT, 0, 5);
   lv_obj_t *slider = lv_slider_create(cont);
   lv_slider_set_range(slider, 1, 255);
@@ -151,12 +151,12 @@ void create_settings_window() {
 
   lv_obj_t *lbl_loc_l = lv_label_create(cont);
   lv_label_set_text(lbl_loc_l, strings->location);
-  lv_obj_set_style_text_font(lbl_loc_l, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_loc_l, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_loc_l, LV_ALIGN_TOP_LEFT, 0, 70);
 
   lbl_loc = lv_label_create(cont);
   lv_label_set_text(lbl_loc, location.c_str());
-  lv_obj_set_style_text_font(lbl_loc, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_loc, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align_to(lbl_loc, lbl_loc_l, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
 
   lv_obj_t *btn_change_loc = lv_btn_create(cont);
@@ -165,12 +165,12 @@ void create_settings_window() {
   lv_obj_add_event_cb(btn_change_loc, change_location_event_cb, LV_EVENT_CLICKED, NULL);
   lv_obj_t *lbl_chg = lv_label_create(btn_change_loc);
   lv_label_set_text(lbl_chg, strings->location_btn);
-  lv_obj_set_style_text_font(lbl_chg, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_chg, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_center(lbl_chg);
 
   lv_obj_t *lbl_u = lv_label_create(cont);
   lv_label_set_text(lbl_u, strings->use_fahrenheit);
-  lv_obj_set_style_text_font(lbl_u, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_u, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_u, LV_ALIGN_TOP_LEFT, 0, 38);
 
   unit_switch = lv_switch_create(cont);
@@ -184,7 +184,7 @@ void create_settings_window() {
 
   lv_obj_t *lbl_24hr = lv_label_create(cont);
   lv_label_set_text(lbl_24hr, strings->use_24hr);
-  lv_obj_set_style_text_font(lbl_24hr, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_24hr, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_24hr, LV_ALIGN_TOP_LEFT, 120, 38);
 
   clock_24hr_switch = lv_switch_create(cont);
@@ -199,17 +199,17 @@ void create_settings_window() {
   // Language selection
   lv_obj_t *lbl_lang = lv_label_create(cont);
   lv_label_set_text(lbl_lang, strings->language_label);
-  lv_obj_set_style_text_font(lbl_lang, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_lang, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_lang, LV_ALIGN_TOP_LEFT, 0, 105);
 
   language_dropdown = lv_dropdown_create(cont);
   lv_dropdown_set_options(language_dropdown, "English\nEspañol\nDeutsch\nFrançais\nItaliano");
   lv_dropdown_set_selected(language_dropdown, current_language);
   lv_obj_set_width(language_dropdown, 120);
-  lv_obj_set_style_text_font(language_dropdown, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
-  lv_obj_set_style_text_font(language_dropdown, get_font_12(), LV_PART_SELECTED | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(language_dropdown, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_text_font(language_dropdown, get_font_12(), ((lv_style_selector_t)LV_PART_SELECTED | LV_STATE_DEFAULT));
   lv_obj_t *list = lv_dropdown_get_list(language_dropdown);
-  lv_obj_set_style_text_font(list, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(list, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align_to(language_dropdown, lbl_lang, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
   lv_obj_add_event_cb(language_dropdown, settings_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
@@ -222,22 +222,22 @@ void create_settings_window() {
   }
 
   lv_obj_t *btn_reset = lv_btn_create(cont);
-  lv_obj_set_style_bg_color(btn_reset, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN | LV_STATE_DEFAULT);
-  lv_obj_set_style_bg_color(btn_reset, lv_palette_darken(LV_PALETTE_RED, 1), LV_PART_MAIN | LV_STATE_PRESSED);
-  lv_obj_set_style_text_color(btn_reset, lv_color_white(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_bg_color(btn_reset, lv_palette_main(LV_PALETTE_RED), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_bg_color(btn_reset, lv_palette_darken(LV_PALETTE_RED, 1), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_PRESSED));
+  lv_obj_set_style_text_color(btn_reset, lv_color_white(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_set_size(btn_reset, 100, 40);
   lv_obj_align(btn_reset, LV_ALIGN_TOP_RIGHT, 0, 140);
   lv_obj_add_event_cb(btn_reset, reset_wifi_event_handler, LV_EVENT_CLICKED, nullptr);
 
   lv_obj_t *lbl_reset = lv_label_create(btn_reset);
   lv_label_set_text(lbl_reset, strings->reset_wifi);
-  lv_obj_set_style_text_font(lbl_reset, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_reset, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_center(lbl_reset);
 
     // Show app version
   lv_obj_t *lbl_version= lv_label_create(cont);
   lv_label_set_text(lbl_version, APP_VERSION);
-  lv_obj_set_style_text_font(lbl_version, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_version, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_version, LV_ALIGN_TOP_LEFT, 0, 200);
 
   // Show device IP for the webconfig page
@@ -247,7 +247,7 @@ void create_settings_window() {
   } else {
     lv_label_set_text(lbl_ip, "Config: not connected");
   }
-  lv_obj_set_style_text_font(lbl_ip, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_ip, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_align(lbl_ip, LV_ALIGN_TOP_LEFT, 0, 215);
 
   btn_close_obj = lv_btn_create(cont);
@@ -257,6 +257,6 @@ void create_settings_window() {
 
   lv_obj_t *lbl_btn = lv_label_create(btn_close_obj);
   lv_label_set_text(lbl_btn, strings->close);
-  lv_obj_set_style_text_font(lbl_btn, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_font(lbl_btn, get_font_12(), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
   lv_obj_center(lbl_btn);
 }

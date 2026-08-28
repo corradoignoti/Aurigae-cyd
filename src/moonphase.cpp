@@ -23,7 +23,7 @@ void fetch_and_update_moonphase() {
     String payload = http.getString();
     http.end();
 
-    DynamicJsonDocument doc(1024);
+    JsonDocument doc;
     if (deserializeJson(doc, payload) == DeserializationError::Ok){
       //String date         = doc["date"].as<String>();
       //float  illumination = doc["illumination_percent"].as<float>();
