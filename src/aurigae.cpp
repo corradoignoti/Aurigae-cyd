@@ -80,6 +80,7 @@ void setup() {
   current_theme = (UiTheme)prefs.getUInt("theme", THEME_BLUE);
   String owmKey = prefs.getString("owmApiKey", "");
   owmKey.toCharArray(openweather_apikey, sizeof(openweather_apikey));
+  page_slideshow_enabled = prefs.getBool("pageSlideshow", false);
   analogWrite(LCD_BACKLIGHT_PIN, brightness); //Set brightness
 
   // Check for Wi-Fi config and request it if not available

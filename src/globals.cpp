@@ -18,6 +18,7 @@ JsonDocument geoDoc;
 JsonArray geoResults;
 char ntp_server[64] = NTP_SERVER_DEFAULT;
 int ntp_utc_offset_seconds = 0;
+bool page_slideshow_enabled = false;
 
 WebServer webConfigServer(80);
 

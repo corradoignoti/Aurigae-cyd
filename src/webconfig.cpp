@@ -155,6 +155,12 @@ static void handle_webconfig_root() {
     "</select>"
     "<button type='submit' class='btn'>Save</button>"
     "</form>"
+    "<form method='POST' action='/saveslideshow'>"
+    "<label for='slideshow' class='switch-row'><span>Auto-cycle pages every 5s</span>"
+    "<input type='checkbox' id='slideshow' name='slideshow' value='1'"
+      + String(page_slideshow_enabled ? " checked" : "") + "></label>"
+    "<button type='submit' class='btn'>Save</button>"
+    "</form>"
     "<hr>"
     "<h2 class='section'>Appearance</h2>"
     "<form method='POST' action='/savetheme'>"
@@ -318,6 +324,13 @@ static void handle_webconfig_savetempunit() {
   prefs.putBool("useFahrenheit", use_fahrenheit);
 
   webconfig_send_info_page("Temperature unit saved.");
+}
+
+static void handle_webconfig_saveslideshow() {
+  page_slideshow_enabled = webConfigServer.hasArg("slideshow");
+  prefs.putBool("pageSlideshow", page_slideshow_enabled);
+
+  webconfig_send_info_page("Page slideshow setting saved.");
 }
 
 static void handle_webconfig_savelanguage() {
@@ -612,6 +625,7 @@ void start_webconfig_server() {
   webConfigServer.on("/save", HTTP_POST, handle_webconfig_save);
   webConfigServer.on("/saveclockformat", HTTP_POST, handle_webconfig_saveclockformat);
   webConfigServer.on("/savetempunit", HTTP_POST, handle_webconfig_savetempunit);
+  webConfigServer.on("/saveslideshow", HTTP_POST, handle_webconfig_saveslideshow);
   webConfigServer.on("/savelanguage", HTTP_POST, handle_webconfig_savelanguage);
   webConfigServer.on("/savetheme", HTTP_POST, handle_webconfig_savetheme);
   webConfigServer.on("/saveweatherprovider", HTTP_POST, handle_webconfig_saveweatherprovider);
