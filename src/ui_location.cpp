@@ -88,6 +88,14 @@ static void location_save_event_cb(lv_event_t *e) {
   prefs.putString("location", opts);
   location = prefs.getString("location");
 
+  if (country) {
+    strncpy(country_code, country, sizeof(country_code) - 1);
+    country_code[sizeof(country_code) - 1] = '\0';
+  } else {
+    country_code[0] = '\0';
+  }
+  prefs.putString("countryCode", country_code);
+
   // Re‐fetch weather, sunrise/sunsetctime and moonphase immediately
   lv_label_set_text(lbl_loc, opts.c_str());
   fetch_and_update_weather();

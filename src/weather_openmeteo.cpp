@@ -24,6 +24,12 @@ void fetch_weather_openmeteo() {
                + "&forecast_hours=7"
                + "&timezone=auto";
 
+  // Italian locations get ARPAE's higher-resolution ICON-2I regional model
+  // added alongside the default best-match model for better local accuracy.
+  if (strcmp(country_code, "IT") == 0) {
+    url += "&models=italia_meteo_arpae_icon_2i";
+  }
+
   HTTPClient http;
   http.begin(url);
 

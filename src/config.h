@@ -15,6 +15,7 @@
 #define LATITUDE_DEFAULT "51.5074"
 #define LONGITUDE_DEFAULT "-0.1278"
 #define LOCATION_DEFAULT "London"
+#define COUNTRY_CODE_DEFAULT "GB"
 #define DEFAULT_CAPTIVE_SSID "Aurigae"
 #define NTP_SERVER_DEFAULT "pool.ntp.org"
 #define MOON_SERVICE_URL "https://api.aurigae.fizban.net/api/moonphase?date=today"

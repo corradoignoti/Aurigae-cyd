@@ -68,6 +68,8 @@ void setup() {
   lon.toCharArray(longitude, sizeof(longitude));
   use_fahrenheit = prefs.getBool("useFahrenheit", false);
   location = prefs.getString("location", LOCATION_DEFAULT);
+  String cc = prefs.getString("countryCode", COUNTRY_CODE_DEFAULT);
+  cc.toCharArray(country_code, sizeof(country_code));
   uint32_t brightness = prefs.getUInt("brightness", 255);
   default_lcd_brightness = brightness; //used as global var to restore LCD brightness when anitburn set it to LOW
   use_24_hour = prefs.getBool("use24Hour", false);

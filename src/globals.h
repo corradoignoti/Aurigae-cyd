@@ -32,6 +32,7 @@ extern bool use_24_hour;
 extern char latitude[16];
 extern char longitude[16];
 extern String location;
+extern char country_code[4];  // ISO 3166-1 alpha-2 from geocoding, e.g. "IT"; drives per-country API tweaks
 extern DynamicJsonDocument geoDoc;
 extern JsonArray geoResults;
 extern char ntp_server[64];

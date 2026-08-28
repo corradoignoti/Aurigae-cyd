@@ -13,6 +13,7 @@ bool use_24_hour = false;
 char latitude[16] = LATITUDE_DEFAULT;
 char longitude[16] = LONGITUDE_DEFAULT;
 String location = String(LOCATION_DEFAULT);
+char country_code[4] = COUNTRY_CODE_DEFAULT;
 DynamicJsonDocument geoDoc(8 * 1024);
 JsonArray geoResults;
 char ntp_server[64] = NTP_SERVER_DEFAULT;
