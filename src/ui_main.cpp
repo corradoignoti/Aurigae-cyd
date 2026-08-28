@@ -26,6 +26,23 @@ static lv_obj_t *box_aqi;
 static lv_obj_t *img_sunset;
 static lv_obj_t *img_sunrise;
 
+// Page-indicator dots for the daily/hourly/moon-phase/air-quality cycle
+// (same order as daily_cb/hourly_cb/moonp_cb/aqi_cb below).
+#define NUM_CYCLE_PAGES 4
+static lv_obj_t *page_dots[NUM_CYCLE_PAGES];
+static int current_cycle_page = 0;
+
+static void update_page_dots() {
+  const ThemeColors &theme = get_theme_colors();
+  for (int i = 0; i < NUM_CYCLE_PAGES; i++) {
+    if (!page_dots[i]) continue;
+    bool active = (i == current_cycle_page);
+    lv_obj_set_size(page_dots[i], active ? 8 : 6, active ? 8 : 6);
+    lv_obj_set_style_bg_color(page_dots[i], lv_color_hex(active ? theme.text_primary : theme.text_tertiary), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(page_dots[i], active ? LV_OPA_COVER : LV_OPA_50, LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+}
+
 static void screen_event_cb(lv_event_t *e) {
   create_settings_window();
 }
@@ -36,6 +53,8 @@ static void daily_cb(lv_event_t *e) {
   lv_obj_add_flag(box_next_hours, LV_OBJ_FLAG_HIDDEN);
   lv_label_set_text(lbl_forecast, strings->hourly_forecast);
   lv_obj_clear_flag(box_hourly, LV_OBJ_FLAG_HIDDEN);
+  current_cycle_page = 1;
+  update_page_dots();
 }
 
 static void hourly_cb(lv_event_t *e) {
@@ -44,6 +63,8 @@ static void hourly_cb(lv_event_t *e) {
   lv_obj_add_flag(box_hourly, LV_OBJ_FLAG_HIDDEN);
   lv_label_set_text(lbl_forecast, strings->moonphases);
   lv_obj_clear_flag(box_moon_phases, LV_OBJ_FLAG_HIDDEN);
+  current_cycle_page = 2;
+  update_page_dots();
 }
 
 static void moonp_cb (lv_event_t *e) {
@@ -51,6 +72,8 @@ static void moonp_cb (lv_event_t *e) {
   lv_obj_add_flag(box_moon_phases, LV_OBJ_FLAG_HIDDEN);
   lv_label_set_text(lbl_forecast, strings->air_quality_page);
   lv_obj_clear_flag(box_air_quality, LV_OBJ_FLAG_HIDDEN);
+  current_cycle_page = 3;
+  update_page_dots();
 }
 
 static void aqi_cb (lv_event_t *e) {
@@ -59,6 +82,8 @@ static void aqi_cb (lv_event_t *e) {
   lv_label_set_text(lbl_forecast, strings->five_day_forecast);
   lv_obj_clear_flag(box_daily, LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_flag(box_next_hours, LV_OBJ_FLAG_HIDDEN);
+  current_cycle_page = 0;
+  update_page_dots();
 }
 
 // Show/hide the WiFi icon in the top-left corner based on connection status.
@@ -154,6 +179,26 @@ void create_ui() {
   lv_obj_set_style_text_font(lbl_forecast, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_text_color(lbl_forecast, lv_color_hex(theme.text_secondary), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_align(lbl_forecast, LV_ALIGN_TOP_LEFT, 20, 110);
+
+  // Page-indicator dots, same row as lbl_forecast, right side.
+  lv_obj_t *dots_row = lv_obj_create(scr);
+  lv_obj_remove_style_all(dots_row);
+  lv_obj_set_size(dots_row, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+  lv_obj_clear_flag(dots_row, LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_set_layout(dots_row, LV_LAYOUT_FLEX);
+  lv_obj_set_flex_flow(dots_row, LV_FLEX_FLOW_ROW);
+  lv_obj_set_flex_align(dots_row, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  lv_obj_set_style_pad_gap(dots_row, 5, LV_PART_MAIN);
+  lv_obj_align(dots_row, LV_ALIGN_TOP_RIGHT, -12, 112);
+  for (int i = 0; i < NUM_CYCLE_PAGES; i++) {
+    page_dots[i] = lv_obj_create(dots_row);
+    lv_obj_remove_style_all(page_dots[i]);
+    lv_obj_set_style_radius(page_dots[i], LV_RADIUS_CIRCLE, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(page_dots[i], LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_clear_flag(page_dots[i], LV_OBJ_FLAG_SCROLLABLE);
+  }
+  current_cycle_page = 0;
+  update_page_dots();
 
   box_daily = lv_obj_create(scr);
   lv_obj_set_size(box_daily, 220, 140);
