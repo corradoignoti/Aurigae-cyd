@@ -68,13 +68,20 @@ void fetch_weather_openmeteo() {
       JsonArray sunrise_times = doc["daily"]["sunrise"].as<JsonArray>();
       JsonArray sunset_times = doc["daily"]["sunset"].as<JsonArray>();
 
-      // Open-Meteo gives 7 days; make sure all 7 daily-box rows are visible
-      // in case OpenWeather (5-day only) previously hid the last two.
+      // First page always shows a 5-day forecast, regardless of provider;
+      // Open-Meteo fetches 7 days of data but only the first 5 rows are shown.
       for (int i = 0; i < 7; i++) {
-        lv_obj_clear_flag(lbl_daily_day[i], LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(lbl_daily_high[i], LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(lbl_daily_low[i], LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(img_daily[i], LV_OBJ_FLAG_HIDDEN);
+        if (i < 5) {
+          lv_obj_clear_flag(lbl_daily_day[i], LV_OBJ_FLAG_HIDDEN);
+          lv_obj_clear_flag(lbl_daily_high[i], LV_OBJ_FLAG_HIDDEN);
+          lv_obj_clear_flag(lbl_daily_low[i], LV_OBJ_FLAG_HIDDEN);
+          lv_obj_clear_flag(img_daily[i], LV_OBJ_FLAG_HIDDEN);
+        } else {
+          lv_obj_add_flag(lbl_daily_day[i], LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(lbl_daily_high[i], LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(lbl_daily_low[i], LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(img_daily[i], LV_OBJ_FLAG_HIDDEN);
+        }
       }
 
       for (int i = 0; i < 7; i++) {
@@ -136,6 +143,12 @@ void fetch_weather_openmeteo() {
         lv_label_set_text_fmt(lbl_precipitation_probability[i], "%.0f%%", precipitation_probability);
         lv_label_set_text_fmt(lbl_hourly_temp[i], "%.0f°%c", temp, unit);
         lv_img_set_src(img_hourly[i], choose_icon(hourly_weather_codes[i].as<int>(), hourly_is_day[i].as<int>()));
+
+        // Bottom-of-page "next 4 hours" strip
+        if (i < 4) {
+          lv_label_set_text(lbl_next_hours_time[i], hour_name.c_str());
+          lv_img_set_src(img_next_hours[i], choose_icon(hourly_weather_codes[i].as<int>(), hourly_is_day[i].as<int>()));
+        }
       }
 
 

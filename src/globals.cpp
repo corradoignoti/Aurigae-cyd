@@ -35,6 +35,8 @@ lv_obj_t *lbl_hourly[7];
 lv_obj_t *lbl_precipitation_probability[7];
 lv_obj_t *lbl_hourly_temp[7];
 lv_obj_t *img_hourly[7];
+lv_obj_t *img_next_hours[4];
+lv_obj_t *lbl_next_hours_time[4];
 lv_obj_t *lbl_loc;
 lv_obj_t *kb;
 lv_obj_t *lbl_sunrise;

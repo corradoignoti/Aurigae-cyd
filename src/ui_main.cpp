@@ -17,6 +17,7 @@
 static lv_obj_t *lbl_wifi_status;
 static lv_obj_t *lbl_forecast;
 static lv_obj_t *box_daily;
+static lv_obj_t *box_next_hours;
 static lv_obj_t *box_hourly;
 static lv_obj_t *box_moon_phases;
 static lv_obj_t *box_air_quality;
@@ -32,6 +33,7 @@ static void screen_event_cb(lv_event_t *e) {
 static void daily_cb(lv_event_t *e) {
   const LocalizedStrings* strings = get_strings();
   lv_obj_add_flag(box_daily, LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(box_next_hours, LV_OBJ_FLAG_HIDDEN);
   lv_label_set_text(lbl_forecast, strings->hourly_forecast);
   lv_obj_clear_flag(box_hourly, LV_OBJ_FLAG_HIDDEN);
 }
@@ -54,8 +56,9 @@ static void moonp_cb (lv_event_t *e) {
 static void aqi_cb (lv_event_t *e) {
   const LocalizedStrings* strings = get_strings();
   lv_obj_add_flag(box_air_quality, LV_OBJ_FLAG_HIDDEN);
-  lv_label_set_text(lbl_forecast, weather_provider == PROVIDER_OPENWEATHER ? strings->five_day_forecast : strings->seven_day_forecast);
+  lv_label_set_text(lbl_forecast, strings->five_day_forecast);
   lv_obj_clear_flag(box_daily, LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(box_next_hours, LV_OBJ_FLAG_HIDDEN);
 }
 
 // Show/hide the WiFi icon in the top-left corner based on connection status.
@@ -115,7 +118,7 @@ void create_ui() {
   img_today_icon = lv_img_create(scr);
   lv_img_set_src(img_today_icon, &image_partly_cloudy);
   lv_obj_align(img_today_icon, LV_ALIGN_TOP_MID, -64, 4);
-  lv_img_set_zoom(img_today_icon, 208);
+  lv_img_set_zoom(img_today_icon, 198);
 
   lbl_relative_hum = lv_label_create(scr);
   lv_label_set_text(lbl_relative_hum, "Hum. 00 %");
@@ -136,7 +139,7 @@ void create_ui() {
   // once days_to_xmas is known (unknown/0 at this point, before NTP sync).
   img_small_santa_claus = lv_img_create(scr);
   lv_img_set_src(img_small_santa_claus, &icon_santa_claus);
-  lv_img_set_zoom(img_small_santa_claus, 64);
+  lv_img_set_zoom(img_small_santa_claus, 61);
   lv_obj_align_to(img_small_santa_claus, lbl_today_temp, LV_ALIGN_OUT_LEFT_MID, 40, -5);
   lv_obj_add_flag(img_small_santa_claus, LV_OBJ_FLAG_HIDDEN);
 
@@ -147,13 +150,13 @@ void create_ui() {
   lv_obj_align(lbl_today_feels_like, LV_ALIGN_TOP_MID, 45, 48);
 
   lbl_forecast = lv_label_create(scr);
-  lv_label_set_text(lbl_forecast, weather_provider == PROVIDER_OPENWEATHER ? strings->five_day_forecast : strings->seven_day_forecast);
+  lv_label_set_text(lbl_forecast, strings->five_day_forecast);
   lv_obj_set_style_text_font(lbl_forecast, get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_text_color(lbl_forecast, lv_color_hex(theme.text_secondary), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_align(lbl_forecast, LV_ALIGN_TOP_LEFT, 20, 110);
 
   box_daily = lv_obj_create(scr);
-  lv_obj_set_size(box_daily, 220, 180);
+  lv_obj_set_size(box_daily, 220, 140);
   lv_obj_align(box_daily, LV_ALIGN_TOP_LEFT, 10, 135);
   lv_obj_set_style_bg_color(box_daily, lv_color_hex(theme.box_bg), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_bg_opa(box_daily, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -185,7 +188,45 @@ void create_ui() {
     lv_obj_align(lbl_daily_low[i], LV_ALIGN_TOP_RIGHT, -50, i * 24);
 
     lv_img_set_src(img_daily[i], &icon_partly_cloudy);
+    lv_img_set_zoom(img_daily[i], 243);
     lv_obj_align(img_daily[i], LV_ALIGN_TOP_LEFT, 72, i * 24);
+  }
+
+  // === NEXT 4 HOURS STRIP (bottom of the daily-forecast page) ====
+  // Shares box_daily's show/hide lifecycle (toggled in daily_cb/aqi_cb below)
+  // since it's only meaningful alongside the daily forecast, not the other
+  // cycled boxes (hourly/moon phases/air quality).
+  box_next_hours = lv_obj_create(scr);
+  lv_obj_set_size(box_next_hours, 220, 40);
+  lv_obj_align(box_next_hours, LV_ALIGN_TOP_LEFT, 10, 278);
+  lv_obj_set_style_bg_color(box_next_hours, lv_color_hex(theme.box_bg), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_bg_opa(box_next_hours, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_radius(box_next_hours, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_border_width(box_next_hours, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_clear_flag(box_next_hours, LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_set_scrollbar_mode(box_next_hours, LV_SCROLLBAR_MODE_OFF);
+  lv_obj_set_style_pad_all(box_next_hours, 4, LV_PART_MAIN);
+  lv_obj_set_layout(box_next_hours, LV_LAYOUT_FLEX);
+  lv_obj_set_flex_flow(box_next_hours, LV_FLEX_FLOW_ROW);
+  lv_obj_set_flex_align(box_next_hours, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+  for (int i = 0; i < 4; i++) {
+    lv_obj_t *col = lv_obj_create(box_next_hours);
+    lv_obj_remove_style_all(col);
+    lv_obj_set_size(col, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_clear_flag(col, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_layout(col, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(col, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(col, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    img_next_hours[i] = lv_img_create(col);
+    lv_img_set_src(img_next_hours[i], &icon_partly_cloudy);
+    lv_img_set_zoom(img_next_hours[i], 243);
+
+    lbl_next_hours_time[i] = lv_label_create(col);
+    lv_label_set_text(lbl_next_hours_time[i], "--:--");
+    lv_obj_set_style_text_font(lbl_next_hours_time[i], get_font_12(), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(lbl_next_hours_time[i], lv_color_hex(theme.text_tertiary), LV_PART_MAIN | LV_STATE_DEFAULT);
   }
 
   box_hourly = lv_obj_create(scr);
@@ -221,6 +262,7 @@ void create_ui() {
     lv_obj_align(lbl_precipitation_probability[i], LV_ALIGN_TOP_RIGHT, -55, i * 24);
 
     lv_img_set_src(img_hourly[i], &icon_partly_cloudy);
+    lv_img_set_zoom(img_hourly[i], 243);
     lv_obj_align(img_hourly[i], LV_ALIGN_TOP_LEFT, 72, i * 24);
   }
 
@@ -243,7 +285,7 @@ void create_ui() {
 
   img_moon_phases = lv_img_create(box_moon_phases);
   lv_img_set_src(img_moon_phases, &icon_6_last_quarter_moon);
-  //lv_img_set_zoom(img_moon_phases, 512);
+  lv_img_set_zoom(img_moon_phases, 243);
   lv_obj_align(img_moon_phases, LV_ALIGN_TOP_MID, 1, 5);
 
   lbl_moon_phase_desc = lv_label_create(box_moon_phases);
@@ -255,7 +297,7 @@ void create_ui() {
   // icon_santa_claus
   img_santa_claus = lv_img_create(box_moon_phases);
   lv_img_set_src(img_santa_claus, &icon_santa_claus);
-  lv_img_set_zoom(img_santa_claus, 128);
+  lv_img_set_zoom(img_santa_claus, 122);
   lv_obj_align_to(img_santa_claus, lbl_moon_phase_desc, LV_ALIGN_OUT_BOTTOM_MID, 0, -20);
   //lv_obj_align(img_santa_claus, LV_ALIGN_CENTER, 0, 10);
 
@@ -377,7 +419,7 @@ void create_ui() {
   // SUNRISE
   img_sunrise = lv_img_create(scr);
   lv_img_set_src(img_sunrise, &icon_sunrise);
-  lv_img_set_zoom(img_sunrise, 64);
+  lv_img_set_zoom(img_sunrise, 61);
   lv_obj_align(img_sunrise, LV_ALIGN_TOP_MID, 1, 5);
 
   lbl_sunrise = lv_label_create(scr);
@@ -389,7 +431,7 @@ void create_ui() {
   // SUNSET
   img_sunset = lv_img_create(scr);
   lv_img_set_src(img_sunset, &icon_sunset);
-  lv_img_set_zoom(img_sunset, 64);
+  lv_img_set_zoom(img_sunset, 61);
   lv_obj_align(img_sunset, LV_ALIGN_TOP_MID, 1, 20);
 
   lbl_sunset = lv_label_create(scr);

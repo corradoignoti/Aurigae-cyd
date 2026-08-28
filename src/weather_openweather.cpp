@@ -155,6 +155,12 @@ void fetch_weather_openweather() {
         lv_label_set_text_fmt(lbl_precipitation_probability[i], "%.0f%%", precipitation_probability);
         lv_label_set_text_fmt(lbl_hourly_temp[i], "%.0f°%c", temp, unit);
         lv_img_set_src(img_hourly[i], choose_icon(wmo_code, h_is_day));
+
+        // Bottom-of-page "next 4 hours" strip
+        if (i < 4) {
+          lv_label_set_text(lbl_next_hours_time[i], hour_name.c_str());
+          lv_img_set_src(img_next_hours[i], choose_icon(wmo_code, h_is_day));
+        }
       }
 
       // --- Daily box: aggregate 3-hourly buckets by calendar date ---
@@ -188,8 +194,9 @@ void fetch_weather_openweather() {
         }
       }
 
-      // OpenWeather's free tier only covers 5 days; show just 5 daily-box
-      // rows and hide the other two (Open-Meteo's 7-day fetch un-hides them).
+      // First page always shows a 5-day forecast; show just 5 daily-box
+      // rows and hide the other two (OpenWeather's free tier only covers 5
+      // days anyway; Open-Meteo fetches 7 but also caps display at 5).
       const int OWM_DAILY_ROWS = 5;
       for (int i = 0; i < OWM_DAILY_ROWS && i < dayCount; i++) {
         int y, mo, d;

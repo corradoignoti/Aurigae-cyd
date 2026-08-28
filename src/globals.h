@@ -56,6 +56,9 @@ extern lv_obj_t *lbl_hourly[7];
 extern lv_obj_t *lbl_precipitation_probability[7];
 extern lv_obj_t *lbl_hourly_temp[7];
 extern lv_obj_t *img_hourly[7];
+// Always-visible "next 4 hours" strip at the bottom of the daily-forecast page.
+extern lv_obj_t *img_next_hours[4];
+extern lv_obj_t *lbl_next_hours_time[4];
 extern lv_obj_t *lbl_loc;
 extern lv_obj_t *kb;
 extern lv_obj_t *lbl_sunrise;
