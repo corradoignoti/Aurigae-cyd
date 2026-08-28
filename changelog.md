@@ -9,6 +9,12 @@ and the corresponding git tags where one exists.
 ### Added
 - `/screenshot` debug endpoint on the webconfig page — streams current display contents as an
   uncompressed BMP, read back off the ILI9341 GRAM.
+- Next-4-hours forecast strip on main weather view.
+
+### Changed
+- 5-day daily forecast now always shown (previously hidden under some conditions).
+- Weather icons shrunk 5% to fit new layout.
+- Webconfig page restyled with Material UI.
 
 ## [2.0.0] - 2026-08-24
 ### Added
