@@ -5,6 +5,16 @@ All notable changes to Aurigae are documented here. Format loosely follows
 `APP_VERSION` string shown in the on-device Settings screen / webconfig page
 and the corresponding git tags where one exists.
 
+## [Unreleased]
+### Added
+- OTA firmware update: `/update` endpoint on the webconfig page, upload a built `.bin` and the
+  device flashes + reboots itself. Required switching `board_build.partitions` from
+  `huge_app.csv` (no OTA slot) to `min_spiffs.csv` (dual ~1.9MB OTA slots) — flash usage is now
+  ~98% of each slot, so future size growth will need trimming (see 2.1.0 icon/lv_conf work).
+- `/checkupdate`: webconfig page polls the public web-flasher's manifest
+  (aurigae.fizban.net/firmware/manifest.json) and shows an update banner with a direct
+  firmware.bin download link when a newer version is published there.
+
 ## [2.1.0] - 2026-08-25
 ### Added
 - `/screenshot` debug endpoint on the webconfig page — streams current display contents as an

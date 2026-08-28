@@ -4,6 +4,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include "esp_system.h"
+#include <Update.h>
 #include "config.h"
 #include "globals.h"
 #include "localization.h"
@@ -209,6 +210,24 @@ static void handle_webconfig_root() {
     "<button type='submit' class='btn'>Save Location</button>"
     "</form>"
     "<hr>"
+    "<h2 class='section'>Firmware Update</h2>"
+    "<p class='hint' id='updatestatus'>Checking for updates&hellip;</p>"
+    "<div id='updatebanner' style='display:none;background:var(--md-surface-variant);"
+      "padding:.8em 1em;border-radius:8px;margin-bottom:1em'>"
+    "<strong>Update available: v<span id='ulatest'></span></strong>"
+    "<p class='hint'>You have v<span id='ucurrent'></span>. "
+    "<a class='link' id='udownload' href='#'>Download firmware.bin</a>, then upload it below, or "
+    "<a class='link' href='https://aurigae.fizban.net/flash.html' target='_blank'>flash it directly in your browser</a>.</p>"
+    "</div>"
+    "<form method='POST' action='/update' enctype='multipart/form-data'"
+      " onsubmit=\"return confirm('Flash this firmware file? The device will reboot when done. Do not power it off during the update.');\">"
+    "<label for='fwfile'>Firmware .bin file</label>"
+    "<input type='file' id='fwfile' name='firmware' accept='.bin' required>"
+    "<button type='submit' class='btn'>Upload &amp; Flash</button>"
+    "</form>"
+    "<p class='hint'>Build with <code>pio run</code>; upload"
+      " <code>.pio/build/esp32-cyd/firmware.bin</code>.</p>"
+    "<hr>"
     "<h2 class='section'>Debug</h2>"
     "<a class='link' href='/screenshot' target='_blank'>Download screenshot (BMP)</a>"
     "<script>"
@@ -243,6 +262,28 @@ static void handle_webconfig_root() {
     "});"
     "}).catch(function(){box.textContent='Search failed.';});"
     "}"
+    "fetch('/checkupdate').then(function(r){return r.json();}).then(function(d){"
+    "var status=document.getElementById('updatestatus');"
+    "if(d.error||!d.current){"
+    "status.innerHTML=\"Could not check for updates. Compare your version above against "
+      "<a class='link' href='https://aurigae.fizban.net/flash.html' target='_blank'>"
+      "aurigae.fizban.net/flash.html</a> manually.\";"
+    "return;"
+    "}"
+    "if(d.updateAvailable){"
+    "status.textContent='Update available: v'+d.latest+' (you have v'+d.current+').';"
+    "document.getElementById('ulatest').textContent=d.latest;"
+    "document.getElementById('ucurrent').textContent=d.current;"
+    "document.getElementById('udownload').href=d.url;"
+    "document.getElementById('updatebanner').style.display='block';"
+    "}else{"
+    "status.textContent='Firmware is up to date (v'+d.current+').';"
+    "}"
+    "}).catch(function(){"
+    "document.getElementById('updatestatus').innerHTML=\"Could not check for updates. Compare your "
+      "version above against <a class='link' href='https://aurigae.fizban.net/flash.html' "
+      "target='_blank'>aurigae.fizban.net/flash.html</a> manually.\";"
+    "});"
     "</script>";
   webConfigServer.send(200, "text/html; charset=utf-8", webconfig_page_shell(body));
 }
@@ -444,6 +485,126 @@ static void handle_webconfig_screenshot() {
   }
 }
 
+// Streaming upload callback for /update: fed one HTTPUpload chunk at a time
+// as the multipart body arrives, writing each chunk straight into the
+// inactive OTA slot via the Update library. UPDATE_SIZE_UNKNOWN is used
+// because WebServer doesn't expose the multipart part's declared size here;
+// Update tracks the free OTA slot size itself and fails the write once it's
+// exceeded. Errors are only logged here — the outcome is reported to the
+// browser afterwards by handle_webconfig_update_done, once the upload (and
+// this callback) has fully finished.
+static void handle_webconfig_update_upload() {
+  HTTPUpload &upload = webConfigServer.upload();
+
+  switch (upload.status) {
+    case UPLOAD_FILE_START:
+      Serial.printf("OTA update starting: %s\n", upload.filename.c_str());
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+        Update.printError(Serial);
+      }
+      break;
+    case UPLOAD_FILE_WRITE:
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+        Update.printError(Serial);
+      }
+      break;
+    case UPLOAD_FILE_END:
+      if (Update.end(true)) {
+        Serial.printf("OTA update received: %u bytes\n", upload.totalSize);
+      } else {
+        Update.printError(Serial);
+      }
+      break;
+    case UPLOAD_FILE_ABORTED:
+      Update.abort();
+      Serial.println("OTA update aborted.");
+      break;
+  }
+}
+
+// Fires once the /update request (and handle_webconfig_update_upload above)
+// has fully completed. Update.hasError() reflects the outcome of the whole
+// begin/write/end sequence, including a bad or truncated .bin — in that case
+// the previous firmware is untouched and still boots normally.
+static void handle_webconfig_update_done() {
+  if (Update.hasError()) {
+    webconfig_send_error_page("Firmware update failed. Nothing was flashed; device is unchanged.");
+    return;
+  }
+
+  webconfig_send_reboot_page("Firmware updated. Rebooting device...");
+}
+
+// Strips any non-numeric prefix off APP_VERSION (e.g. "App ver. 2.1.0" -> "2.1.0")
+// so it can be compared against the manifest's bare "X.Y.Z" with version_is_newer().
+static String webconfig_current_version() {
+  String v(APP_VERSION);
+  size_t i = 0;
+  while (i < v.length() && !isDigit(v[i])) i++;
+  return v.substring(i);
+}
+
+// Polls FIRMWARE_MANIFEST_URL (the same esp-web-tools manifest the public web
+// flasher at aurigae.fizban.net/flash.html reads) and reports whether it
+// advertises a firmware newer than APP_VERSION, plus a direct download link
+// for the app image, for the update-status line on the root page.
+// `current` is always included so the page can display it even when the
+// check itself fails; `error` is set on any network/parse failure so the
+// page can tell "checked, up to date" apart from "couldn't check" and point
+// the user at the flash.html page to compare versions manually.
+static void handle_webconfig_checkupdate() {
+  String current = webconfig_current_version();
+  bool ok = false;
+  String latest, fwUrl;
+
+  HTTPClient http;
+  http.begin(FIRMWARE_MANIFEST_URL);
+  int code = http.GET();
+  if (code == HTTP_CODE_OK) {
+    DynamicJsonDocument doc(4 * 1024);
+    if (!deserializeJson(doc, http.getString())) {
+      latest = doc["version"] | "";
+      if (latest.length() > 0) {
+        // Find the app-image part (offset 0x10000, same as this project's own
+        // OTA slot offset) so the download link matches whatever the
+        // manifest's build actually names it, rather than assuming "firmware.bin".
+        String fwPath = "firmware.bin";
+        JsonArray builds = doc["builds"].as<JsonArray>();
+        if (builds.size() > 0) {
+          JsonArray parts = builds[0]["parts"].as<JsonArray>();
+          for (JsonObject part : parts) {
+            long offset = part["offset"] | -1;
+            if (offset == 0x10000) {
+              fwPath = part["path"] | "firmware.bin";
+              break;
+            }
+          }
+        }
+
+        String base = FIRMWARE_MANIFEST_URL;
+        fwUrl = base.substring(0, base.lastIndexOf('/') + 1) + fwPath;
+        ok = true;
+      }
+    }
+  }
+  http.end();
+
+  DynamicJsonDocument outDoc(512);
+  outDoc["current"] = current;
+  outDoc["error"] = !ok;
+  if (ok) {
+    outDoc["latest"] = latest;
+    outDoc["updateAvailable"] = version_is_newer(latest, current);
+    outDoc["url"] = fwUrl;
+  } else {
+    outDoc["updateAvailable"] = false;
+  }
+
+  String out;
+  serializeJson(outDoc, out);
+  webConfigServer.send(200, "application/json; charset=utf-8", out);
+}
+
 void start_webconfig_server() {
   webConfigServer.on("/", HTTP_GET, handle_webconfig_root);
   webConfigServer.on("/save", HTTP_POST, handle_webconfig_save);
@@ -455,5 +616,7 @@ void start_webconfig_server() {
   webConfigServer.on("/geocode", HTTP_GET, handle_webconfig_geocode);
   webConfigServer.on("/savelocation", HTTP_POST, handle_webconfig_savelocation);
   webConfigServer.on("/screenshot", HTTP_GET, handle_webconfig_screenshot);
+  webConfigServer.on("/update", HTTP_POST, handle_webconfig_update_done, handle_webconfig_update_upload);
+  webConfigServer.on("/checkupdate", HTTP_GET, handle_webconfig_checkupdate);
   webConfigServer.begin();
 }

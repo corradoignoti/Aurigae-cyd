@@ -21,8 +21,10 @@ pio device monitor        # serial monitor, 115200 baud
 ```
 
 - Board: `esp32dev` (generic ESP32 Dev Module) — matches the ESP32-2432S028R "Cheap Yellow Display" target.
-- `board_build.partitions = huge_app.csv` — equivalent to the Arduino IDE's "Huge App (3MB No OTA/1MB SPIFFS)"
-  partition scheme; required because of the flash usage from LVGL + fonts + icon assets.
+- `board_build.partitions = min_spiffs.csv` — dual ~1.9MB OTA app slots (app0/app1) + a small unused
+  SPIFFS partition, needed for the `/update` OTA endpoint (see webconfig.h below) to have somewhere
+  to flash into. Firmware currently runs ~98% of each OTA slot's capacity — thin headroom, watch
+  flash usage (`pio run`'s "Flash:" line) as features/assets are added.
 - All libraries (ArduinoJson 7.4.1, TFT_eSPI 2.5.43, WifiManager 2.0.17, XPT2046_Touchscreen 1.4,
   lvgl 9.2.2) are declared as `lib_deps` and fetched automatically — no manual library install step.
   (Upstream's Arduino Library Manager lists 9.2.3, but PlatformIO's registry mirrors lvgl/lvgl's git tags,
@@ -77,6 +79,16 @@ one file is kept `static` inside that file instead. Key files:
   brightness, °F/°C, 12/24hr, language, weather provider, and OpenWeather API key. Loaded once in `setup()`,
   written back when settings close (or immediately on save, for the webconfig-only weather-provider setting
   — [src/webconfig.h](src/webconfig.h)/[webconfig.cpp](src/webconfig.cpp)).
+- **OTA update**: the webconfig page's `/update` endpoint (unauthenticated, like the rest of
+  webconfig — anyone on the LAN can flash it) accepts a POSTed `.bin` and writes it into the
+  inactive OTA slot via the `Update` library (`handle_webconfig_update_upload`/`_done` in
+  webconfig.cpp), rebooting into it on success. Requires the OTA-capable partition table set in
+  `platformio.ini` (see above) — falls back to leaving the running firmware untouched on any
+  write/verify failure. `/checkupdate` (`handle_webconfig_checkupdate`) polls
+  `FIRMWARE_MANIFEST_URL` (config.h — the esp-web-tools manifest behind the public web flasher at
+  aurigae.fizban.net/flash.html) and, if its `version` is newer than `APP_VERSION`
+  (`version_is_newer()` in util.h/cpp), the root page shows a banner linking straight to the
+  matching `firmware.bin`.
 - **Wi-Fi provisioning**: `WiFiManager` auto-connects to saved credentials or falls back to a captive AP named
   by `DEFAULT_CAPTIVE_SSID` ("Aurigae"); [src/wifi_provisioning.h](src/wifi_provisioning.h)/
   [wifi_provisioning.cpp](src/wifi_provisioning.cpp)'s `apModeCallback()` shows a splash screen while in AP

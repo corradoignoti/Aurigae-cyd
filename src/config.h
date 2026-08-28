@@ -18,6 +18,10 @@
 #define DEFAULT_CAPTIVE_SSID "Aurigae"
 #define NTP_SERVER_DEFAULT "pool.ntp.org"
 #define MOON_SERVICE_URL "https://api.aurigae.fizban.net/api/moonphase?date=today"
+// esp-web-tools manifest for the public web flasher (https://aurigae.fizban.net/flash.html);
+// polled by the webconfig page's /checkupdate endpoint to offer a firmware.bin download when
+// its "version" is newer than APP_VERSION below.
+#define FIRMWARE_MANIFEST_URL "https://aurigae.fizban.net/firmware/manifest.json"
 #define UPDATE_INTERVAL 600000UL        // 10 minutes
 #define ANTIBURN_IDLE_TIMEOUT 600000UL  // dim after 10 min with no touch
 #define ANTIBURN_CHECK_INTERVAL 30000UL // how often to check idle time

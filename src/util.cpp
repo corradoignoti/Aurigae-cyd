@@ -105,3 +105,21 @@ String roundToMinute(const char* time) {
 
   return String(buffer);
 }
+
+bool version_is_newer(const String &a, const String &b) {
+  int ai = 0, bi = 0;
+  while (ai < (int)a.length() && !isDigit(a[ai])) ai++;
+  while (bi < (int)b.length() && !isDigit(b[bi])) bi++;
+
+  while (ai < (int)a.length() || bi < (int)b.length()) {
+    int an = 0, bn = 0;
+    while (ai < (int)a.length() && isDigit(a[ai])) { an = an * 10 + (a[ai] - '0'); ai++; }
+    while (bi < (int)b.length() && isDigit(b[bi])) { bn = bn * 10 + (b[bi] - '0'); bi++; }
+    if (an != bn) return an > bn;
+    while (ai < (int)a.length() && a[ai] != '.') ai++;
+    while (bi < (int)b.length() && b[bi] != '.') bi++;
+    if (ai < (int)a.length()) ai++;
+    if (bi < (int)b.length()) bi++;
+  }
+  return false;
+}
