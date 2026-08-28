@@ -81,6 +81,9 @@ void setup() {
   String owmKey = prefs.getString("owmApiKey", "");
   owmKey.toCharArray(openweather_apikey, sizeof(openweather_apikey));
   page_slideshow_enabled = prefs.getBool("pageSlideshow", false);
+  uint32_t antiburnMin = prefs.getUInt("antiburnMin", ANTIBURN_IDLE_TIMEOUT_DEFAULT_MIN);
+  antiburnMin = constrain(antiburnMin, ANTIBURN_IDLE_TIMEOUT_MIN_MIN, ANTIBURN_IDLE_TIMEOUT_MAX_MIN);
+  antiburn_idle_timeout_ms = antiburnMin * 60000UL;
   analogWrite(LCD_BACKLIGHT_PIN, brightness); //Set brightness
 
   // Check for Wi-Fi config and request it if not available

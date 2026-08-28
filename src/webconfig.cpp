@@ -124,6 +124,18 @@ static void webconfig_send_reboot_page(const String &message) {
   esp_restart();
 }
 
+// <option> list for the antiburn-timeout <select>, 5-minute steps between
+// ANTIBURN_IDLE_TIMEOUT_MIN_MIN and ANTIBURN_IDLE_TIMEOUT_MAX_MIN, current value selected.
+static String webconfig_antiburn_options() {
+  uint32_t currentMin = antiburn_idle_timeout_ms / 60000UL;
+  String opts;
+  for (int m = ANTIBURN_IDLE_TIMEOUT_MIN_MIN; m <= ANTIBURN_IDLE_TIMEOUT_MAX_MIN; m += 5) {
+    opts += "<option value='" + String(m) + "'" + String((uint32_t)m == currentMin ? " selected" : "") + ">"
+      + String(m) + "</option>";
+  }
+  return opts;
+}
+
 static void handle_webconfig_root() {
   String body = "<h1>Aurigae</h1><p class='version'>" APP_VERSION "</p>"
     "<h2 class='section'>General</h2>"
@@ -159,6 +171,11 @@ static void handle_webconfig_root() {
     "<label for='slideshow' class='switch-row'><span>Auto-cycle pages every 5s</span>"
     "<input type='checkbox' id='slideshow' name='slideshow' value='1'"
       + String(page_slideshow_enabled ? " checked" : "") + "></label>"
+    "<button type='submit' class='btn'>Save</button>"
+    "</form>"
+    "<form method='POST' action='/saveantiburn'>"
+    "<label for='antiburn'>Screen-burn protection: dim backlight after idle (minutes)</label>"
+    "<select id='antiburn' name='antiburnMin'>" + webconfig_antiburn_options() + "</select>"
     "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<hr>"
@@ -331,6 +348,21 @@ static void handle_webconfig_saveslideshow() {
   prefs.putBool("pageSlideshow", page_slideshow_enabled);
 
   webconfig_send_info_page("Page slideshow setting saved.");
+}
+
+static void handle_webconfig_saveantiburn() {
+  String val = webConfigServer.hasArg("antiburnMin") ? webConfigServer.arg("antiburnMin") : "";
+  int minutes = val.toInt();
+
+  if (val.length() == 0 || minutes < ANTIBURN_IDLE_TIMEOUT_MIN_MIN || minutes > ANTIBURN_IDLE_TIMEOUT_MAX_MIN) {
+    webconfig_send_error_page("Invalid screen-burn protection timeout. Nothing saved.");
+    return;
+  }
+
+  antiburn_idle_timeout_ms = (uint32_t)minutes * 60000UL;
+  prefs.putUInt("antiburnMin", (uint32_t)minutes);
+
+  webconfig_send_info_page("Screen-burn protection timeout saved.");
 }
 
 static void handle_webconfig_savelanguage() {
@@ -626,6 +658,7 @@ void start_webconfig_server() {
   webConfigServer.on("/saveclockformat", HTTP_POST, handle_webconfig_saveclockformat);
   webConfigServer.on("/savetempunit", HTTP_POST, handle_webconfig_savetempunit);
   webConfigServer.on("/saveslideshow", HTTP_POST, handle_webconfig_saveslideshow);
+  webConfigServer.on("/saveantiburn", HTTP_POST, handle_webconfig_saveantiburn);
   webConfigServer.on("/savelanguage", HTTP_POST, handle_webconfig_savelanguage);
   webConfigServer.on("/savetheme", HTTP_POST, handle_webconfig_savetheme);
   webConfigServer.on("/saveweatherprovider", HTTP_POST, handle_webconfig_saveweatherprovider);

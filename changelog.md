@@ -5,6 +5,11 @@ All notable changes to Aurigae are documented here. Format loosely follows
 `APP_VERSION` string shown in the on-device Settings screen / webconfig page
 and the corresponding git tags where one exists.
 
+## [Unreleased]
+### Added
+- Screen-burn protection (antiburn) idle timeout now adjustable from the webconfig page, 10-30
+  minutes in 5-minute steps (was a fixed 10 min). Applies live, no reboot needed.
+
 ## [2.2.0] - 2026-08-29
 ### Added
 - OTA firmware update: `/update` endpoint on the webconfig page, upload a built `.bin` and the

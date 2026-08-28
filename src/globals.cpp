@@ -56,3 +56,4 @@ int days_to_xmas;
 uint32_t default_lcd_brightness;
 volatile unsigned long last_touch_ms = 0;
 volatile bool screen_dimmed = false;
+uint32_t antiburn_idle_timeout_ms = ANTIBURN_IDLE_TIMEOUT_DEFAULT_MIN * 60000UL;

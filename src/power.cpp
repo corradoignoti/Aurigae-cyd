@@ -11,7 +11,7 @@ void restore_light(){
 
 //Checked periodically; dims backlight only after real idle time, not on a blind schedule
 void antiburn(lv_timer_t *timer) {
-  if (!screen_dimmed && millis() - last_touch_ms >= ANTIBURN_IDLE_TIMEOUT) {
+  if (!screen_dimmed && millis() - last_touch_ms >= antiburn_idle_timeout_ms) {
     analogWrite(LCD_BACKLIGHT_PIN, 0);
     screen_dimmed = true;
   }

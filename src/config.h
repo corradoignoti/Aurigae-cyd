@@ -24,8 +24,10 @@
 // its "version" is newer than APP_VERSION below.
 #define FIRMWARE_MANIFEST_URL "https://aurigae.fizban.net/firmware/manifest.json"
 #define UPDATE_INTERVAL 600000UL        // 10 minutes
-#define ANTIBURN_IDLE_TIMEOUT 600000UL  // dim after 10 min with no touch
-#define ANTIBURN_CHECK_INTERVAL 30000UL // how often to check idle time
+#define ANTIBURN_IDLE_TIMEOUT_DEFAULT_MIN 10  // default antiburn idle timeout, in minutes
+#define ANTIBURN_IDLE_TIMEOUT_MIN_MIN 10      // webconfig-allowed minimum, in minutes
+#define ANTIBURN_IDLE_TIMEOUT_MAX_MIN 30      // webconfig-allowed maximum, in minutes
+#define ANTIBURN_CHECK_INTERVAL 30000UL       // how often to check idle time
 #define PAGE_SLIDESHOW_INTERVAL 5000UL  // auto-cycle page every 5s when enabled
 
 #define APP_VERSION "App ver. 2.2.0"
