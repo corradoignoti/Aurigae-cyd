@@ -23,6 +23,7 @@
 #include "power.h"
 #include "wifi_provisioning.h"
 #include "ui_main.h"
+#include "firmware_update.h"
 
 static void update_clock(lv_timer_t *timer) {
   struct tm timeinfo;
@@ -105,11 +106,15 @@ void setup() {
   // set a 30 min. timer to prevent deep sleep
   lv_timer_create(force_wakeup, 1800000, NULL);
 
+  // Check for a new firmware version every 6h (also checked once below, at boot)
+  lv_timer_create(check_for_firmware_update, FIRMWARE_CHECK_INTERVAL, NULL);
+
   lv_obj_clean(lv_scr_act());
   create_ui();
   fetch_and_update_weather();
   fetch_and_update_moonphase();
   update_days_to_christmas();
+  check_for_firmware_update();
 }
 
 void loop() {

@@ -13,3 +13,7 @@ void wifi_splash_screen();
 // Shows/hides the top-left Wi-Fi icon based on connection status; called
 // every loop() iteration.
 void update_wifi_status_icon();
+
+// Shows/hides the top-bar download icon (next to the Wi-Fi icon) based on
+// firmware_update_available (globals.h); called by check_for_firmware_update().
+void update_firmware_update_icon();

@@ -9,6 +9,11 @@ and the corresponding git tags where one exists.
 ### Added
 - Screen-burn protection (antiburn) idle timeout now adjustable from the webconfig page, 10-30
   minutes in 5-minute steps (was a fixed 10 min). Applies live, no reboot needed.
+- On-device firmware update check: polls the same manifest as the webconfig page's
+  `/checkupdate` at boot and every 6h, waking the screen from antiburn if needed and showing a
+  self-closing (30s) notice when a newer version is published. A download icon stays in the top
+  bar next to the Wi-Fi icon while an update is pending, clearing on the next check once the
+  device is up to date.
 
 ## [2.2.0] - 2026-08-29
 ### Added

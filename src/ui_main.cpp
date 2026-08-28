@@ -15,6 +15,7 @@
 // Widgets used only within this file (screen chrome + the three cycled
 // forecast boxes + the UV/AQI box); everything else lives in globals.h.
 static lv_obj_t *lbl_wifi_status;
+static lv_obj_t *lbl_update_icon;
 static lv_obj_t *lbl_forecast;
 static lv_obj_t *box_daily;
 static lv_obj_t *box_next_hours;
@@ -111,6 +112,17 @@ void update_wifi_status_icon() {
   }
 }
 
+// Show/hide the download icon next to the Wi-Fi icon based on
+// firmware_update_available; called by check_for_firmware_update().
+void update_firmware_update_icon() {
+  if (!lbl_update_icon) return;
+  if (firmware_update_available) {
+    lv_obj_clear_flag(lbl_update_icon, LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_add_flag(lbl_update_icon, LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
 void wifi_splash_screen() {
   const ThemeColors &theme = get_theme_colors();
   lv_obj_t *scr = lv_scr_act();
@@ -152,6 +164,14 @@ void create_ui() {
   lv_obj_align(lbl_wifi_status, LV_ALIGN_TOP_LEFT, 4, 4);
   lv_obj_add_flag(lbl_wifi_status, LV_OBJ_FLAG_HIDDEN);
   update_wifi_status_icon();
+
+  lbl_update_icon = lv_label_create(scr);
+  lv_label_set_text(lbl_update_icon, LV_SYMBOL_DOWNLOAD);
+  lv_obj_set_style_text_font(lbl_update_icon, &lv_font_montserrat_14, ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_set_style_text_color(lbl_update_icon, lv_color_hex(theme.text_primary), ((lv_style_selector_t)LV_PART_MAIN | LV_STATE_DEFAULT));
+  lv_obj_align_to(lbl_update_icon, lbl_wifi_status, LV_ALIGN_OUT_RIGHT_MID, 4, 0);
+  lv_obj_add_flag(lbl_update_icon, LV_OBJ_FLAG_HIDDEN);
+  update_firmware_update_icon();
 
   img_today_icon = lv_img_create(scr);
   lv_img_set_src(img_today_icon, &image_partly_cloudy);

@@ -79,3 +79,4 @@ extern uint32_t default_lcd_brightness;  // used to restore brightness when anti
 extern volatile unsigned long last_touch_ms;  // updated on every touch, drives antiburn idle check
 extern volatile bool screen_dimmed;           // true while antiburn has blanked the backlight
 extern uint32_t antiburn_idle_timeout_ms;     // webconfig-adjustable antiburn idle threshold, in ms
+extern bool firmware_update_available;        // set by check_for_firmware_update(); drives the top-bar download icon

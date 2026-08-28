@@ -24,7 +24,18 @@ static void dialog_bg_close_cb(lv_event_t* e)
     }
 }
 
-void showDialog(const char* message)
+// One-shot timer (see lv_timer_set_repeat_count below); closes the dialog
+// only if it's still the one showing, in case the user already tapped it away.
+static void dialog_auto_close_cb(lv_timer_t* timer)
+{
+    lv_obj_t* dialog = (lv_obj_t*)lv_timer_get_user_data(timer);
+    if(current_dialog == dialog) {
+        lv_obj_del(dialog);
+        current_dialog = NULL;
+    }
+}
+
+void showDialog(const char* message, uint32_t auto_close_ms)
 {
     // If a dialog is already open, close it
     if(current_dialog != NULL) {
@@ -91,4 +102,9 @@ void showDialog(const char* message)
 
     // Preveniamo la propagazione del click dalla finestra al background
     lv_obj_add_flag(dialog_win, LV_OBJ_FLAG_EVENT_BUBBLE);
+
+    if(auto_close_ms > 0) {
+        lv_timer_t* t = lv_timer_create(dialog_auto_close_cb, auto_close_ms, dialog_bg);
+        lv_timer_set_repeat_count(t, 1);
+    }
 }

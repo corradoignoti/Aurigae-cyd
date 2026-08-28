@@ -62,6 +62,7 @@ struct LocalizedStrings {
   const char *aqi_moderate;
   const char *aqi_poor;
   const char *aqi_very_poor;
+  const char *firmware_update_available;
 };
 
 const LocalizedStrings* get_strings();

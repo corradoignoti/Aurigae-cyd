@@ -46,7 +46,8 @@ static const LocalizedStrings strings_en = {
   "UV Index",
   "Air Quality",
   "Low", "Moderate", "High", "Very High", "Extreme",
-  "Good", "Fair", "Moderate", "Poor", "Very Poor"
+  "Good", "Fair", "Moderate", "Poor", "Very Poor",
+  "A new firmware update is available.\nUpdate it from the web config page."
 };
 
 static const LocalizedStrings strings_it = {
@@ -92,7 +93,8 @@ static const LocalizedStrings strings_it = {
   "Indice UV",
   "Qualità Aria",
   "Basso", "Moderato", "Alto", "Molto Alto", "Estremo",
-  "Buona", "Discreta", "Moderata", "Scarsa", "Molto Scarsa"
+  "Buona", "Discreta", "Moderata", "Scarsa", "Molto Scarsa",
+  "È disponibile un nuovo aggiornamento firmware.\nAggiornalo dalla pagina di configurazione web."
 };
 
 static const LocalizedStrings strings_es = {
@@ -140,7 +142,8 @@ static const LocalizedStrings strings_es = {
   "Índice UV",
   "Calidad del Aire",
   "Bajo", "Moderado", "Alto", "Muy Alto", "Extremo",
-  "Buena", "Aceptable", "Moderada", "Mala", "Muy Mala"
+  "Buena", "Aceptable", "Moderada", "Mala", "Muy Mala",
+  "Hay una nueva actualización de firmware disponible.\nActualícela desde la página de configuración web."
 };
 
 static const LocalizedStrings strings_de = {
@@ -190,7 +193,8 @@ static const LocalizedStrings strings_de = {
   "UV-Index",
   "Luftqualität",
   "Niedrig", "Mäßig", "Hoch", "Sehr Hoch", "Extrem",
-  "Gut", "Mittelmäßig", "Mäßig", "Schlecht", "Sehr Schlecht"
+  "Gut", "Mittelmäßig", "Mäßig", "Schlecht", "Sehr Schlecht",
+  "Ein neues Firmware-Update ist verfügbar.\nAktualisieren Sie es über die Webkonfigurationsseite."
 };
 
 static const LocalizedStrings strings_fr = {
@@ -240,7 +244,8 @@ static const LocalizedStrings strings_fr = {
   "Indice UV",
   "Qualité de l'air",
   "Faible", "Modéré", "Élevé", "Très Élevé", "Extrême",
-  "Bonne", "Correcte", "Moyenne", "Mauvaise", "Très Mauvaise"
+  "Bonne", "Correcte", "Moyenne", "Mauvaise", "Très Mauvaise",
+  "Une nouvelle mise à jour du firmware est disponible.\nMettez à jour depuis la page de configuration web."
 };
 
 const LocalizedStrings* get_strings() {
