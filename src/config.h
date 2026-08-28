@@ -26,5 +26,6 @@
 #define UPDATE_INTERVAL 600000UL        // 10 minutes
 #define ANTIBURN_IDLE_TIMEOUT 600000UL  // dim after 10 min with no touch
 #define ANTIBURN_CHECK_INTERVAL 30000UL // how often to check idle time
+#define PAGE_SLIDESHOW_INTERVAL 5000UL  // auto-cycle page every 5s when enabled
 
 #define APP_VERSION "App ver. 2.2.0"

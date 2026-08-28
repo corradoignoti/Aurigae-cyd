@@ -86,6 +86,19 @@ static void aqi_cb (lv_event_t *e) {
   update_page_dots();
 }
 
+// Fired every PAGE_SLIDESHOW_INTERVAL; when page_slideshow_enabled is on,
+// advances the daily/hourly/moon-phase/air-quality cycle exactly as a tap on
+// the currently-shown box would (the *_cb handlers ignore their event arg).
+static void page_slideshow_cb(lv_timer_t *timer) {
+  if (!page_slideshow_enabled) return;
+  switch (current_cycle_page) {
+    case 0: daily_cb(NULL); break;
+    case 1: hourly_cb(NULL); break;
+    case 2: moonp_cb(NULL); break;
+    case 3: aqi_cb(NULL); break;
+  }
+}
+
 // Show/hide the WiFi icon in the top-left corner based on connection status.
 void update_wifi_status_icon() {
   if (!lbl_wifi_status) return;
@@ -485,4 +498,6 @@ void create_ui() {
   lv_label_set_text(lbl_sunset, "");
   lv_obj_align_to(lbl_sunset, img_sunset, LV_ALIGN_OUT_RIGHT_MID, 2, 0);
 
+  // Slideshow timer (PAGE_SLIDESHOW_INTERVAL): no-op each tick unless page_slideshow_enabled is set.
+  lv_timer_create(page_slideshow_cb, PAGE_SLIDESHOW_INTERVAL, NULL);
 }
