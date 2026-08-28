@@ -5,7 +5,7 @@ All notable changes to Aurigae are documented here. Format loosely follows
 `APP_VERSION` string shown in the on-device Settings screen / webconfig page
 and the corresponding git tags where one exists.
 
-## [2.1.1] - 2026-08-28
+## [2.2.0] - 2026-08-29
 ### Added
 - OTA firmware update: `/update` endpoint on the webconfig page, upload a built `.bin` and the
   device flashes + reboots itself. Required switching `board_build.partitions` from
