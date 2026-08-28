@@ -27,4 +27,4 @@
 #define ANTIBURN_IDLE_TIMEOUT 600000UL  // dim after 10 min with no touch
 #define ANTIBURN_CHECK_INTERVAL 30000UL // how often to check idle time
 
-#define APP_VERSION "App ver. 2.1.0"
+#define APP_VERSION "App ver. 2.1.1"
