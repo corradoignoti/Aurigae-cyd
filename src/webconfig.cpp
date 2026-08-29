@@ -30,45 +30,51 @@ static String webconfig_html_escape(const String &s) {
   return out;
 }
 
-// Material Design-inspired shared stylesheet for every webconfig page: tonal
-// surfaces, pill buttons, outlined fields, and a switch-styled checkbox.
-// Reused across the root/error/info/reboot pages so the style lives in one
-// place instead of five near-duplicate <style> blocks.
+// Dark "developer console" shared stylesheet for every webconfig page:
+// permanently-dark surfaces, monospace-leaning type, bordered panels, and a
+// switch-styled checkbox. Reused across the root/error/info/reboot pages so
+// the style lives in one place instead of five near-duplicate <style>
+// blocks. Deliberately dark-only (no prefers-color-scheme fallback) to read
+// as a console rather than a themed app.
 static const char WEBCONFIG_HEAD_CSS[] =
   "<style>"
-  ":root{--md-primary:#6750A4;--md-on-primary:#fff;--md-surface:#fffbfe;--md-on-surface:#1c1b1f;--md-outline:#79747e;--md-surface-variant:#e7e0ec}"
-  "@media (prefers-color-scheme:dark){:root{--md-primary:#d0bcff;--md-on-primary:#381e72;--md-surface:#1c1b1f;--md-on-surface:#e6e1e5;--md-outline:#938f99;--md-surface-variant:#49454f}body{background:#000}}"
+  ":root{--md-primary:#7c9eff;--md-on-primary:#0d1117;--md-surface:#161b22;--md-on-surface:#e6edf3;--md-outline:#30363d;--md-surface-variant:#21262d}"
   "*{box-sizing:border-box}"
-  "body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#eceff5;margin:0;padding:2em 1em;color:var(--md-on-surface)}"
-  ".card{background:var(--md-surface);max-width:480px;margin:0 auto;padding:1.6em;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px 1px rgba(0,0,0,.15)}"
-  "h1{font-size:1.5em;margin:0 0 .1em}"
-  ".version{color:var(--md-outline);font-size:.85em;margin:0 0 1.2em}"
-  "h2.section{font-size:.8em;text-transform:uppercase;letter-spacing:.06em;color:var(--md-primary);margin:1.6em 0 .6em;font-weight:700}"
-  "label{display:block;font-size:.85em;color:var(--md-outline);margin:1em 0 .3em}"
-  "input[type=text],select{width:100%;padding:.7em .8em;border:1px solid var(--md-outline);border-radius:8px;font-size:1em;background:transparent;color:var(--md-on-surface);font-family:inherit}"
-  "input[type=text]:focus,select:focus{outline:none;border:2px solid var(--md-primary);padding:calc(.7em - 1px) calc(.8em - 1px)}"
-  "button{font-family:inherit;cursor:pointer}"
-  ".btn{margin-top:1.3em;padding:.7em 1.6em;background:var(--md-primary);color:var(--md-on-primary);border:none;border-radius:20px;font-size:.95em;font-weight:600}"
-  ".btn:hover{filter:brightness(1.08)}"
+  "body{font-family:ui-monospace,'SF Mono','Segoe UI Mono',Consolas,monospace;background:#0d1117;margin:0;padding:2em 1em;color:var(--md-on-surface)}"
+  ".card{background:var(--md-surface);border:1px solid var(--md-outline);max-width:480px;margin:0 auto;padding:1.6em;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.35)}"
+  ".head-row{display:flex;align-items:baseline;justify-content:space-between;gap:.8em;flex-wrap:wrap}"
+  "h1{font-family:-apple-system,'Segoe UI',sans-serif;font-size:1.4em;margin:0 0 .1em;color:#fff}"
+  ".version{color:var(--md-outline);font-size:.8em;margin:0 0 1.2em}"
+  ".badge{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.72em;font-weight:700;padding:.3em .7em;border-radius:20px;border:1px solid;white-space:nowrap}"
+  ".badge-neutral{color:#8b949e;border-color:var(--md-outline)}"
+  ".badge-ok{color:#3fb950;border-color:#26382b;background:#132118}"
+  ".badge-warn{color:#e3b341;border-color:#3d3320;background:#211c10}"
+  "h2.section{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.78em;text-transform:uppercase;letter-spacing:.07em;color:var(--md-primary);margin:1.6em 0 .7em;font-weight:700;padding-bottom:.5em;border-bottom:1px solid var(--md-outline)}"
+  "label{display:block;font-family:-apple-system,'Segoe UI',sans-serif;font-size:.85em;color:#8b949e;margin:1em 0 .3em}"
+  "input[type=text],select{width:100%;padding:.65em .8em;border:1px solid var(--md-outline);border-radius:6px;font-size:.95em;background:#0d1117;color:var(--md-on-surface);font-family:inherit}"
+  "input[type=text]:focus,select:focus{outline:none;border:2px solid var(--md-primary);padding:calc(.65em - 1px) calc(.8em - 1px)}"
+  "button{font-family:-apple-system,'Segoe UI',sans-serif;cursor:pointer}"
+  ".btn{margin-top:1.3em;padding:.6em 1.4em;background:var(--md-primary);color:var(--md-on-primary);border:none;border-radius:6px;font-size:.85em;font-weight:700}"
+  ".btn:hover{filter:brightness(1.1)}"
   ".btn-outline{background:transparent;color:var(--md-primary);border:1px solid var(--md-outline)}"
-  ".switch-row{display:flex;align-items:center;justify-content:space-between;gap:1em;margin-top:1.1em;cursor:pointer;font-size:.95em}"
-  "input[type=checkbox]{appearance:none;-webkit-appearance:none;width:44px;height:24px;min-width:44px;border-radius:12px;background:var(--md-surface-variant);position:relative;cursor:pointer;transition:background .2s;margin:0}"
+  ".switch-row{display:flex;align-items:center;justify-content:space-between;gap:1em;margin-top:1.1em;cursor:pointer;font-family:-apple-system,'Segoe UI',sans-serif;font-size:.9em}"
+  "input[type=checkbox]{appearance:none;-webkit-appearance:none;width:40px;height:22px;min-width:40px;border-radius:11px;background:var(--md-outline);position:relative;cursor:pointer;transition:background .2s;margin:0}"
   "input[type=checkbox]:checked{background:var(--md-primary)}"
-  "input[type=checkbox]::before{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}"
-  "input[type=checkbox]:checked::before{transform:translateX(20px)}"
-  "hr{border:none;height:1px;background:var(--md-surface-variant);margin:1.6em 0}"
+  "input[type=checkbox]::before{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#0d1117;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.5)}"
+  "input[type=checkbox]:checked::before{transform:translateX(18px)}"
+  "hr{border:none;border-top:1px dashed var(--md-outline);margin:1.6em 0}"
   ".theme-picker{display:flex;gap:1.4em;flex-wrap:wrap;margin-top:.8em}"
   ".theme-option{display:flex;flex-direction:column;align-items:center;gap:.4em;cursor:pointer}"
   ".theme-option input{position:absolute;opacity:0;pointer-events:none}"
-  ".theme-option .swatch{display:block;width:44px;height:44px;border-radius:50%;border:3px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:border-color .15s,transform .15s}"
+  ".theme-option .swatch{display:block;width:40px;height:40px;border-radius:50%;border:3px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.5);transition:border-color .15s,transform .15s}"
   ".theme-option input:checked+.swatch{border-color:var(--md-primary);transform:scale(1.08)}"
-  ".theme-option .name{font-size:.8em;color:var(--md-on-surface)}"
-  ".map-frame{width:100%;height:220px;border:1px solid var(--md-outline);border-radius:8px;margin-top:1em;display:block}"
-  "#locresults button{display:block;width:100%;text-align:left;margin:.4em 0;padding:.7em .9em;background:var(--md-surface-variant);color:var(--md-on-surface);border:none;border-radius:8px;font-size:.95em}"
-  "#locresults button:hover{filter:brightness(.95)}"
+  ".theme-option .name{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.78em;color:#8b949e}"
+  ".map-frame{width:100%;height:220px;border:1px solid var(--md-outline);border-radius:6px;margin-top:1em;display:block;filter:invert(1) hue-rotate(180deg)}"
+  "#locresults button{display:block;width:100%;text-align:left;margin:.4em 0;padding:.65em .9em;background:var(--md-surface-variant);color:var(--md-on-surface);border:1px solid var(--md-outline);border-radius:6px;font-size:.9em;font-family:inherit}"
+  "#locresults button:hover{border-color:var(--md-primary)}"
   "a.link{display:inline-block;margin-top:.3em;color:var(--md-primary);text-decoration:none;font-weight:600}"
   "a.link:hover{text-decoration:underline}"
-  ".hint{color:var(--md-outline);font-size:.85em;margin-top:.3em}"
+  ".hint{color:#8b949e;font-family:-apple-system,'Segoe UI',sans-serif;font-size:.82em;margin-top:.3em}"
   "</style>";
 
 // Wraps body markup in the shared <head>/card shell every webconfig page uses.
@@ -137,7 +143,9 @@ static String webconfig_antiburn_options() {
 }
 
 static void handle_webconfig_root() {
-  String body = "<h1>Aurigae</h1><p class='version'>" APP_VERSION "</p>"
+  String body = "<div class='head-row'><h1>Aurigae</h1>"
+    "<span class='badge badge-neutral' id='verbadge'>Checking&hellip;</span></div>"
+    "<p class='version'>" APP_VERSION "</p>"
     "<h2 class='section'>General</h2>"
     "<form method='POST' action='/save'>"
     "<label for='ntp'>NTP Server</label>"
@@ -171,6 +179,8 @@ static void handle_webconfig_root() {
     "<label for='slideshow' class='switch-row'><span>Auto-cycle pages every 5s</span>"
     "<input type='checkbox' id='slideshow' name='slideshow' value='1'"
       + String(page_slideshow_enabled ? " checked" : "") + "></label>"
+    "<p class='hint'>Automatically rotates through daily forecast, hourly forecast, moon phase, "
+      "and UV/air quality every 5 seconds instead of waiting for a tap.</p>"
     "<button type='submit' class='btn'>Save</button>"
     "</form>"
     "<form method='POST' action='/saveantiburn'>"
@@ -289,10 +299,12 @@ static void handle_webconfig_root() {
     "}"
     "fetch('/checkupdate').then(function(r){return r.json();}).then(function(d){"
     "var status=document.getElementById('updatestatus');"
+    "var badge=document.getElementById('verbadge');"
     "if(d.error||!d.current){"
     "status.innerHTML=\"Could not check for updates. Compare your version above against "
       "<a class='link' href='https://aurigae.fizban.net/flash.html' target='_blank'>"
       "aurigae.fizban.net/flash.html</a> manually.\";"
+    "badge.className='badge badge-neutral';badge.textContent='Check failed';"
     "return;"
     "}"
     "if(d.updateAvailable){"
@@ -301,13 +313,17 @@ static void handle_webconfig_root() {
     "document.getElementById('ucurrent').textContent=d.current;"
     "document.getElementById('udownload').href=d.url;"
     "document.getElementById('updatebanner').style.display='block';"
+    "badge.className='badge badge-warn';badge.textContent='Update available';"
     "}else{"
     "status.textContent='Firmware is up to date (v'+d.current+').';"
+    "badge.className='badge badge-ok';badge.textContent='Up to date';"
     "}"
     "}).catch(function(){"
     "document.getElementById('updatestatus').innerHTML=\"Could not check for updates. Compare your "
       "version above against <a class='link' href='https://aurigae.fizban.net/flash.html' "
       "target='_blank'>aurigae.fizban.net/flash.html</a> manually.\";"
+    "document.getElementById('verbadge').className='badge badge-neutral';"
+    "document.getElementById('verbadge').textContent='Check failed';"
     "});"
     "</script>";
   webConfigServer.send(200, "text/html; charset=utf-8", webconfig_page_shell(body));
