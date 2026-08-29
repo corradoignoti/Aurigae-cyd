@@ -25,9 +25,15 @@ Main screen show current weather for saved location, plus one of several boxes:
 - **UV index / Air quality** — only when weather provider is OpenWeather (see web config page below)
 
 Tap the box to cycle: daily → hourly → moon phase → back to daily (Open-Meteo), or daily → hourly →
-moon phase → UV index / air quality → back to daily (OpenWeather).
+moon phase → UV index / air quality → back to daily (OpenWeather). Dots top-right of box title show
+current page; active dot bigger, others dim. Web config page can turn on auto-cycle (every 5s) instead
+of tapping — see below.
 
 Tap anywhere else on screen (outside the box) to open **Settings**.
+
+A download icon appear next to Wi-Fi icon (top bar) when new firmware available — device also pop a
+30-second dialog saying so (wake screen first if dimmed). Icon clear once device update. Go to web
+config page to install (see **OTA firmware update** below).
 
 ## Settings screen
 
@@ -63,15 +69,29 @@ Once connected to Wi-Fi, device also run small web server. Settings screen show 
   [openweathermap.org](https://openweathermap.org/api)). OpenWeather's free tier only give 5-day
   forecast, so daily box show 5 rows instead of 7 when picked. Picking OpenWeather also add a fourth
   box to main screen tap-cycle, split in two: UV index (left) and air quality (right).
+- **Auto-cycle pages every 5s** — checkbox; when on, main screen page (daily/hourly/moon-phase/AQI)
+  auto-advance every 5s instead of needing tap. Applies right away, no reboot.
+- **Screen-burn protection idle timeout** — dropdown, 10–30 min in 5-min step, default 10. Backlight
+  dim after this many minute idle. Applies right away, no reboot.
 
-Saving NTP server, language, location, or weather provider reboot device to apply change. Clock format
-and temperature unit apply without reboot.
+Saving NTP server, language, location, or weather provider reboot device to apply change. Clock format,
+temperature unit, auto-cycle, and idle timeout apply without reboot.
+
+### OTA firmware update
+
+Web config page root also show firmware status: up-to-date, update-available (with download link for
+`firmware.bin`), or check-failed. To update: download `firmware.bin`, then upload it via the form on
+same page — device flash it and reboot into new version. Failed upload/verify leave running firmware
+untouched.
 
 ## Screen behavior / idle dimming
 
-To reduce burn-in risk on the touchscreen, backlight auto-dim after 10 minutes idle. Touching screen
-restore previous brightness. Backlight also force back on every 30 minutes regardless (a workaround for
-ESP32 deep-sleep otherwise leaving touch unresponsive) — this is expected, not a bug.
+To reduce burn-in risk on the touchscreen, backlight auto-dim after idle timeout (10 min default,
+adjustable 10–30 min via web config page — see above). Touching screen restore previous brightness.
+Backlight also force back on every 30 minutes regardless (a workaround for ESP32 deep-sleep otherwise
+leaving touch unresponsive) — this is expected, not a bug.
+
+Device also check for new firmware at boot and every 6h — see **Main screen** above for what you'll see.
 
 ## Troubleshooting
 
